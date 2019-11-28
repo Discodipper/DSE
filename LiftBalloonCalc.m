@@ -4,12 +4,16 @@ h = [];
 i = 1;
 F_b = [];
 F_bc = [];
+%Outp_year = [];
 V = [];
 Vc = [];
 hc = [];
 Num_solp = [];
 % SOLAR PANEL CALCULATIONS
+Area = 1.63; % [m^2]
+t_solp = 0.048; %[m]
 W_solp = 18.6*g; % [N]
+rho_solp = (W_solp/g)/(Area*t_solp); %[kg]
 T_b = 298.15; % [K]
 Outp_0 = 370; % Output van 1 solar panel [J/s]  
 eff_0 = 0.227; %  [frac]
@@ -47,9 +51,9 @@ for alt = 2000:500:20000
     frac_diff = Temp_diff * temp_coef;
     eff = eff_0 + frac_diff;
     Outp(i) = tot_outp_0 * eff * 5; % Total output * efficiency * 5 for being above clouds LOL
-    Outp_year = (Outp(i)*3600*24*365)/(3600*1000000); %Output of 1 solar panel per year in [MWh]
-    Num_solp = ceil(Req_eng/Outp_year); % Minimum number of solar panels
-    Tot_W_solp = Num_solp * W_solp;
+    Outp_year(i) = (Outp(i)*3600*24*365)/(3600*1000000); %Output of 1 solar panel per year in [MWh]
+    Num_solp(i) = ceil(Req_eng/Outp_year(i)); % Minimum number of solar panels
+    Tot_W_solp(i) = Num_solp(i) * W_solp;
     %MASS ESTIMATIONS
     % Super-pressure balloon
     
@@ -57,10 +61,11 @@ for alt = 2000:500:20000
     
     % Balloon calculations:
     rho_i = 0.0837765634; % density inside balloon
-    Vol(i) = Tot_W_solp / (g * (rho - rho_i));
+    Vol(i) = Tot_W_solp(i) / (g * (rho - rho_i));
+    Tot_area_solp(i) = (Tot_W_solp(i) / rho_solp) / t_solp;
     i = i+1;
-    
 end
+
 
 
 
