@@ -8,7 +8,7 @@ F_bc = [];
 hc = [];
 Num_solp = [];
 % SOLAR PANEL CALCULATIONS
-Num_balloon = 20;
+Num_balloon = 50;
 Area_solp = 1.63; % [m^2]
 t_solp = 0.048; %[m]
 W_solp = 18.6*g; % [N]
