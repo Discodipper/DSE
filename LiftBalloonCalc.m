@@ -5,27 +5,21 @@ i = 1;
 F_b = [];
 F_bc = [];
 %Outp_year = [];
-V = [];
-Vc = [];
 hc = [];
 Num_solp = [];
 % SOLAR PANEL CALCULATIONS
-Area = 1.63; % [m^2]
+Num_balloon = 20;
+Area_solp = 1.63; % [m^2]
 t_solp = 0.048; %[m]
 W_solp = 18.6*g; % [N]
-rho_solp = (W_solp/g)/(Area*t_solp); %[kg]
+rho_solp = (W_solp/g)/(Area_solp*t_solp); %[kg]
 T_b = 298.15; % [K]
 Outp_0 = 370; % Output van 1 solar panel [J/s]  
 eff_0 = 0.227; %  [frac]
 tot_outp_0 = Outp_0/eff_0; % [W]
 temp_coef = -0.0029; % [frac/deg C] 
 Req_eng = 70000; % [MWh] TU Delft yearly energy requirement
-
 for alt = 2000:500:20000
-    Outp_0_year = (Outp_0*3600*24*365)/(3600*1000000); %Output of 1 solar panel per year in [MWh]
-    Num_solp = ceil(Req_eng/Outp_0_year); % Minimum number of solar panels
-    Tot_W_solp = Num_solp * W_solp;
-    
     if (0<alt)&& (alt<=11000)
         p_0 = 101325; %Pa
         T_0 = 288.15; %K
@@ -61,11 +55,20 @@ for alt = 2000:500:20000
     
     % Balloon calculations:
     rho_i = 0.0837765634; % density inside balloon
-    Vol(i) = Tot_W_solp(i) / (g * (rho - rho_i));
-    Tot_area_solp(i) = (Tot_W_solp(i) / rho_solp) / t_solp;
+    Vol(i) = Tot_W_solp(i) / (g * (rho - rho_i)); %Volume entire system [m^3]
+    Tot_area_solp(i) = (Tot_W_solp(i) / rho_solp) / t_solp; %Total area solp of system [m^2]
+    
+    %Horizontal spacing calculations
+    
+    Vol_balloon(i) = Vol(i) / Num_balloon; %Volume per balloon [m^3]
+    Area_solp(i) = Tot_area_solp(i) / Num_balloon; %area of solp per balloon
+    Spacing(i)  = (Area_solp(i) + 200*200) * Num_balloon; %Spacing needed for entire system 
+ 
     i = i+1;
-end
+    
 
+
+end
 
 
 
