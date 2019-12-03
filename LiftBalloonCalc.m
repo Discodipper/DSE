@@ -8,7 +8,7 @@ F_bc = [];
 hc = [];
 Num_solp = [];
 % SOLAR PANEL CALCULATIONS
-Num_balloon = 50;
+Num_balloon = 5;
 Area_solp = 1.63; % [m^2]
 t_solp = 0.048; %[m]
 W_solp = 18.6*g; % [N]
@@ -19,6 +19,14 @@ eff_0 = 0.227; %  [frac]
 tot_outp_0 = Outp_0/eff_0; % [W]
 temp_coef = -0.0029; % [frac/deg C] 
 Req_eng = 70000; % [MWh] TU Delft yearly energy requirement
+
+%Weights
+W_antenna = 5278; %[N]
+W_balloon = 0; %[N]
+W_cables = 300; %[N]
+W_battery = 6000; %[N]
+
+
 for alt = 2000:500:20000
     if (0<alt)&& (alt<=11000)
         p_0 = 101325; %Pa
@@ -48,14 +56,10 @@ for alt = 2000:500:20000
     Outp_year(i) = (Outp(i)*3600*24*365)/(3600*1000000); %Output of 1 solar panel per year in [MWh]
     Num_solp(i) = ceil(Req_eng/Outp_year(i)); % Minimum number of solar panels
     Tot_W_solp(i) = Num_solp(i) * W_solp;
-    %MASS ESTIMATIONS
-    % Super-pressure balloon
     
-    % Zero-pressure balloon
-    
-    % Balloon calculations:
+    % Balloon calculations when stationary altitude:
     rho_i = 0.0837765634; % density inside balloon
-    Vol(i) = Tot_W_solp(i) / (g * (rho - rho_i)); %Volume entire system [m^3]
+    Vol(i) = Tot_W_solp(i) / (g * (rho - rho_i)); % Volume entire system when stationary[m^3]
     Tot_area_solp(i) = (Tot_W_solp(i) / rho_solp) / t_solp; %Total area solp of system [m^2]
     
     %Horizontal spacing calculations
@@ -63,7 +67,11 @@ for alt = 2000:500:20000
     Vol_balloon(i) = Vol(i) / Num_balloon; %Volume per balloon [m^3]
     Area_solp(i) = Tot_area_solp(i) / Num_balloon; %area of solp per balloon
     Spacing(i)  = (Area_solp(i) + 200*200) * Num_balloon; %Spacing needed for entire system 
- 
+    %D = C_D * 0.5 * V^2 * Area_balloon * rho
+    W(i) = (Tot_W_solp(i)/Num_balloon) + W_balloon + W_cables + W_antenna + W_battery; %Total weight of one balloon [N]
+    L(i) = Vol(i)*g*(rho - rho_i) - W(i); %- D; 
+    a(i) = (L(i)*g)/W(i);
+    
     i = i+1;
     
 
