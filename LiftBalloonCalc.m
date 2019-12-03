@@ -8,16 +8,16 @@ F_bc = [];
 hc = [];
 Num_solp = [];
 % SOLAR PANEL CALCULATIONS
-Num_balloon = 5;
-Area_solp = 1.63; % [m^2]
-t_solp = 0.048; %[m]
-W_solp = 18.6*g; % [N]
+Num_balloon = 10;
+Area_solp = 0.0027; % [m^2]
+t_solp = 0.08; %[m]
+W_solp = 0.135*g; % [N]
 rho_solp = (W_solp/g)/(Area_solp*t_solp); %[kg]
 T_b = 298.15; % [K]
-Outp_0 = 370; % Output van 1 solar panel [J/s]  
-eff_0 = 0.227; %  [frac]
+Outp_0 = 1.155; % Output van 1 solar panel [J/s]  
+eff_0 = 0.316; %  [frac]
 tot_outp_0 = Outp_0/eff_0; % [W]
-temp_coef = -0.0029; % [frac/deg C] 
+temp_coef = -0.004; % [frac/deg C] 
 Req_eng = 70000; % [MWh] TU Delft yearly energy requirement
 
 %Weights
@@ -82,7 +82,6 @@ for alt = 2000:500:20000
 
 
 end
-
 
 
 
