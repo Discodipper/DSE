@@ -24,7 +24,7 @@ Req_eng = 70000; % [MWh] TU Delft yearly energy requirement
 W_antenna = 5278; %[N]
 W_balloon = 0; %[N]
 W_cables = 300; %[N]
-W_battery = 6000; %[N]
+W_battery = 10000; %[N]
 
 
 for alt = 2000:500:20000
@@ -72,6 +72,9 @@ for alt = 2000:500:20000
     Vol_balloon(i) = Vol(i) / Num_balloon; %Volume per balloon [m^3]
     Area_solp(i) = Tot_area_solp(i) / Num_balloon; %area of solp per balloon
     Spacing(i)  = (Area_solp(i) + 200*200) * Num_balloon; %Spacing needed for entire system 
+    
+    
+    
     %D = C_D * 0.5 * V^2 * Area_balloon * rho
     W(i) = (Tot_W_solp(i)/Num_balloon) + W_balloon + W_cables + W_antenna + W_battery; %Total weight of one balloon [N]
     L(i) = Vol(i)*g*(rho - rho_i) - W(i); %- D; 
