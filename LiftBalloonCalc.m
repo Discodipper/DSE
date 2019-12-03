@@ -25,6 +25,7 @@ for alt = 2000:500:20000
     Outp_0_year = (Outp_0*3600*24*365)/(3600*1000000); %Output of 1 solar panel per year in [MWh]
     Num_solp = ceil(Req_eng/Outp_0_year); % Minimum number of solar panels
     Tot_W_solp = Num_solp * W_solp;
+    [T, rho, p] = airdensity_calculator(alt);
     
     if (0<alt)&& (alt<=11000)
         p_0 = 101325; %Pa
@@ -32,18 +33,18 @@ for alt = 2000:500:20000
         h_0 = 0; %m
         R_air = 287;
         a_lapse = -0.0065;
-        T = T_0 + a_lapse * (alt-h_0); %Temperature for gradient layer
-        p = p_0 * (T/T_0)^(-g/(a_lapse*R_air));
-        rho = p/(R_air*T);
+%         T = T_0 + a_lapse * (alt-h_0); %Temperature for gradient layer
+%         p = p_0 * (T/T_0)^(-g/(a_lapse*R_air));
+%         rho = p/(R_air*T);
         
         
     elseif (11000<alt) && (alt<=20000)
         p_0 = 22700; %Pa
         h_0 = 11000;
-        T = 216.8; %K
+%         T = 216.8; %K
         rho_0 = 0.364805;
-        p = p_0 * exp((-g/(R_air*T))*(alt-h_0));
-        rho = rho_0 * (p/p_0);
+%         p = p_0 * exp((-g/(R_air*T))*(alt-h_0));
+%         rho = rho_0 * (p/p_0);
         
     end
     
