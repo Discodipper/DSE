@@ -8,11 +8,11 @@ F_bc = [];
 hc = [];
 Num_solp = [];
 % SOLAR PANEL CALCULATIONS
-Num_balloon = 10;
-Area_solp = 0.0027; % [m^2]
-t_solp = 0.08; %[m]
+Num_balloon = 100;
+A_sp = 0.0027; % [m^2]
+t_solp = 0.008; %[m]
 W_solp = 0.135*g; % [N]
-rho_solp = (W_solp/g)/(Area_solp*t_solp); %[kg]
+rho_solp = (W_solp/g)/(A_sp*t_solp); %[kg]
 T_b = 298.15; % [K]
 Outp_0 = 1.155; % Output van 1 solar panel [J/s]  
 eff_0 = 0.316; %  [frac]
@@ -28,9 +28,6 @@ W_battery = 10000; %[N]
 
 
 for alt = 2000:500:20000
-    Outp_0_year = (Outp_0*3600*24*365)/(3600*1000000); %Output of 1 solar panel per year in [MWh]
-    Num_solp = ceil(Req_eng/Outp_0_year); % Minimum number of solar panels
-    Tot_W_solp = Num_solp * W_solp;
     %[T, rho, p] = airdensity_calculator(alt);
     
     if (0<alt)&& (alt<=11000)
@@ -69,8 +66,8 @@ for alt = 2000:500:20000
     
     %Horizontal spacing calculations
     
-    %Vol_balloon(i) = Vol(i) / Num_balloon; %Volume per balloon [m^3]
-    %Area_solp(i) = Tot_area_solp(i) / Num_balloon; %area of solp per balloon
+    Vol_balloon(i) = Vol(i) / Num_balloon; %Volume per balloon [m^3]
+    Area_solp(i) = Tot_area_solp(i) / Num_balloon; %area of solp per balloon
     %Spacing(i)  = (Area_solp(i) + 200*200) * Num_balloon; %Spacing needed for entire system 
     
     
@@ -85,9 +82,11 @@ for alt = 2000:500:20000
     
 
 end
-
-plot(2000:500:20000, Vol)
-
+nexttile
+plot(2000:500:20000,Vol_balloon)
+nexttile
+plot(2000:500:20000,Area_solp)
 
 %plot3(h,V,F_b)
 %contour3(hc,Vc,F_bc,25)
+
