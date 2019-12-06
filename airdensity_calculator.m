@@ -2,7 +2,7 @@ function [temperature_at_flight_altitude, rho_at_flight_altitude, pressure_at_fl
 % Summary of this function goes here
 %   Detailed explanation goes here
 
-R_air = 8.3144598; %N·m/(mol·K)
+R_air = 8.3144598; %Nï¿½m/(molï¿½K)
 g_0 = 9.80665; %m/s2
 molar_mass_of_air_earth = 0.0289644; %kg/mol
 
