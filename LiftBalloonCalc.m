@@ -35,7 +35,7 @@ labda = c/f; % [m] wavelength
 eff_dc_rf = 0.85; % [-]
 eff_atm = 0.722358; % [-]
 eff_wireless = eff_dc_rf * eff_atm; % [-]
-A_r = 10000; % [m^2] 
+A_r =5000; % [m^2] 
 A_t = [];
 % ---------------------------- ALTITUDE-----------------------------
 
@@ -81,21 +81,21 @@ for alt = 2000:500:20000
     %Horizontal spacing calculations
     
     Vol_balloon(i) = Vol(i) / Num_balloon; %Volume per balloon [m^3]
-    Area_solp(i) = Tot_area_solp(i) / Num_balloon; %area of solp per balloon
-    Spacing(i)  = (Area_solp(i) + 200*200) *0.75* Num_balloon; %Spacing needed for entire system 
+    Area_solp(i) = Tot_area_solp(i) / Num_balloon; % area of solp per balloon
+    Spacing(i)  = (Area_solp(i) + 500 *500) *0.75* Num_balloon; %Spacing needed for entire system 
     
     % ---------------------------- MICROWAVES ----------------------------------------
     Num_solp_balloon(i) = Num_solp(i)/Num_balloon; 
     P_t_tot(i) = Outp(i) * Num_solp_balloon(i) *eff_dc_rf; % [W] Power transmitted per balloon
     P_r_tot(i) = P_t_tot(i) * eff_atm; % [W] Power recieved of one balloon
     A_t(i) = (P_r_tot(i) * labda^2 * alt^2)/(A_r*P_t_tot(i)); 
-    %Pow_outp_density = Tot_Outp(i) / Spacing(i); 
-    Pow_outp_density = Tot_Outp(i) / Tot_area_solp(i); 
+    Pow_outp_density_ground(i) = Tot_Outp(i) / Spacing(i); 
+    Pow_outp_density_air(i) = (Tot_Outp(i)/Num_balloon) / (Area_solp(i));  
 
     i = i+1;
 end
 nexttile
-plot(Vol_balloon,2000:500:20000)
+plot(Pow_outp_density_air,2000:500:20000)
 nexttile
 plot(Area_solp,2000:500:20000)
 hold on
