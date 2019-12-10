@@ -69,7 +69,7 @@ for alt = 2000:500:20000
     Num_solp(i) = ceil(Req_eng/Outp_year(i)); % Minimum number of solar panels
     Tot_Outp(i) = Outp(i) * Num_solp(i); %POwer output of entire system 
 
-    Tot_W_solp(i) = Num_solp(i) * W_solp;
+    Tot_W_solp(i) = Num_solp(i) * W_solp; 
     Tot_W(i) = Tot_W_solp(i) + W_antenna + W_film + W_cables + W_battery;
     
     
