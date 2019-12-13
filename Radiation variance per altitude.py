@@ -74,7 +74,7 @@ for h in range(0,20500,500):
     o = 0.23*x
 
     o_lst.append(o)
-print(o_lst[1:])
+a = o_lst[4:]
 #i_lst = []
 #for i in o_lst[1:]:
 #    i_lst.append(i)

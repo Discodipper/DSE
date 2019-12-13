@@ -7,9 +7,9 @@ Num_balloon = 75;
 A_sp = 0.0027; % [m^2] % Area of 1 solar panel
 t_solp = 0.008; %[m]
 W_solp = 0.135*g; % [N]
-rho_solp = (W_solp/g)/(A_sp*t_solp); %[kg]
+rho_solp = (W_solp/g)/(A_sp*t_solp); %[kg/m3]
 T_b = 298.15; % [K]
-Outp_0 = 1.155; % Output van 1 solar panel [J/s]  
+Outp_0 = 305; % Output van 1 solar panel [J/s]  
 eff_0 = 0.316; %  [frac]
 tot_outp_0 = Outp_0/eff_0; % [W]
 temp_coef = -0.004; % [frac/deg C] 
@@ -22,7 +22,7 @@ Vol = [];
 Outp = [];
 
 % ---------------------------- WEIGHTS --------------------------------
-W_antenna = 80000; %[N]
+W_antenna = 0; %[N]
 W_film = 0; %[N]
 W_cables = 0*g*Num_balloon; %[N] 
 W_battery = 0; %[N]
@@ -65,9 +65,9 @@ for alt = 2000:500:20000
     eff = eff_0 + frac_diff;
     x(i) = ((radiation(i)/100)+1); % Increase of output due to solar radiation 
     Outp(i) = tot_outp_0 * eff * 5 * x(i); % Total output * efficiency * 5 for being above clouds LOL
-    Outp_year(i) = (Outp(i)*3600*16*365)/(3600*1000000); %Output of 1 solar panel per year in [MWh]
+    Outp_year(i) = (Outp(i)*3600*12*365)/(3600*1000000); %Output of 1 solar panel per year in [MWh]
     Num_solp(i) = ceil(Req_eng/Outp_year(i)); % Minimum number of solar panels
-    Tot_Outp(i) = Outp(i) * Num_solp(i); %POwer output of entire system 
+    Tot_Outp(i) = Outp(i) * Num_solp(i); %Power output of entire system 
 
     Tot_W_solp(i) = Num_solp(i) * W_solp; 
     Tot_W(i) = Tot_W_solp(i) + W_antenna + W_film + W_cables + W_battery;
