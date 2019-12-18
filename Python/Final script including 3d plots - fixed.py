@@ -138,9 +138,10 @@ ax.set_title("Structural plot design 2")
 ax.set_xlabel("OEW [kg]")
 ax.set_ylabel("Wing loading [$N/m^2$]")
 ax.set_zlabel("Power [kW]")
-legend1 = ax.legend(*scatter1.legend_elements(),
-                    loc="lower left", title="Classes")
-ax.add_artist(legend1)
+#legend1 = ax.legend(*scatter1.legend_elements(),
+#                    loc="lower left", title="Figure 1")
+#ax.add_artist(legend1)
+fig1.colorbar(scatter1)
 
 fig2 = mpl.pyplot.figure(2)
 ax = mpl.pyplot.axes(projection="3d")
@@ -149,9 +150,8 @@ ax.set_title("Operational plot design 2")
 ax.set_xlabel("Altitude [m]")
 ax.set_ylabel("$C_L$ [-]")
 ax.set_zlabel("Power [kW]")
-legend2 = ax.legend(*scatter2.legend_elements(),
-                    loc="lower left", title="Classes")
-ax.add_artist(legend2)
+#ax.add_artist(legend2)
+fig2.colorbar(scatter2)
              
 fig3 = mpl.pyplot.figure(3)
 ax = mpl.pyplot.axes(projection="3d")
@@ -160,9 +160,8 @@ ax.set_title("Sizing plot design 2")
 ax.set_xlabel("OEW [kg]")
 ax.set_ylabel("Surface area [$m^2$]")
 ax.set_zlabel("Power [kW]")
-legend2 = ax.legend(*scatter3.legend_elements(),
-                    loc="lower left", title="Classes")
-ax.add_artist(legend2)
+#ax.add_artist(legend2)
+fig3.colorbar(scatter3)
 mpl.pyplot.show()
 
 
