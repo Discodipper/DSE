@@ -22,7 +22,7 @@ m_tether_per_length = 0.12 #[kg/m]
 
 w_tether_per_length = m_tether_per_length*g_gravity #[N]
 
-h_operating_altitude = 2800 #[m]
+h_operating_altitude = 4800 #[m]
 
 theta_altitude_angle_deg = 20 #[deg]
 theta_altitude_angle = theta_altitude_angle_deg*np.pi/180 #[rad]
@@ -32,7 +32,7 @@ theta_altitude_angle = theta_altitude_angle_deg*np.pi/180 #[rad]
 #theta_tension_angle_ground = theta_tension_angle_ground_deg * np.pi/180 #[rad]
 #H_horizontal_tension_force = t_tension_tether_ground*np.cos(theta_tension_angle_ground) #[N]
 
-H_horizontal_tension_force = 20000 #[N]
+H_horizontal_tension_force = 25000 #[N]
 
 L_horizontal_operating_distance = h_operating_altitude/np.tan(theta_altitude_angle) #[m]
 
@@ -56,3 +56,12 @@ plt.plot(x_cable_coordinate,y_cable_coordinate)
 print('total cable length', C_length_sag_cable, 'm')
 print('straight cable length', L_star_tether_chord_length, 'm')
 print('percentage difference = ', (C_length_sag_cable-L_star_tether_chord_length)/L_star_tether_chord_length*100, '%')
+
+theta_tension_angle_ground = np.arctan(np.sinh(K1_sag_constant))
+theta_tension_angle_glider = np.arctan(np.sinh(w_tether_per_length*L_horizontal_operating_distance/L_horizontal_operating_distance+K1_sag_constant))
+
+print('glider rope angle = ', theta_tension_angle_glider*180/np.pi)
+if theta_tension_angle_ground < 0:
+    print('ERROR, tether touches ground, theta =', theta_tension_angle_ground*np.pi/180, 'degrees')
+else:
+    print('Phew, we are OK, theta=', theta_tension_angle_ground*180/np.pi, 'degrees')
