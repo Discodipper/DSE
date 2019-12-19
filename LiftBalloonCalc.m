@@ -100,6 +100,6 @@ hold on
 
 
 
-%plot3(h,V,F_b)
-%contour3(hc,Vc,F_bc,25)
+plot3(h,V,F_b)
+contour3(hc,Vc,F_bc,25)
 
