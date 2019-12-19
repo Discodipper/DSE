@@ -20,7 +20,7 @@ tot_outp_0 = Outp_0/eff_0 # [W]
 temp_coef = -0.004 # [frac/deg C] 
 Req_eng = 70000 #[MWh] TU Delft yearly energy requirement
 
-alt = range(2000,32500,500)
+alt = range(0,32500,500)
 rho_lst = [];
 for i in alt:
     #[T, rho, p] = airdensity_calculator(alt);
@@ -68,13 +68,13 @@ print(perc)
 o_lst = []
 
 #h = int(input("What's your altitude in m per 0/500/1000/1500/etc.: "))
-for h in range(2000,20500,500):
+for h in range(0,20500,500):
     d = perc[alt.index(h)-1]
     x = sum(perc[:(perc.index(d))+1]) 
     o = 0.23*x
 
     o_lst.append(o)
-print(o_lst[1:])
+a = o_lst[4:]
 #i_lst = []
 #for i in o_lst[1:]:
 #    i_lst.append(i)
