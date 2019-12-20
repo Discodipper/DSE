@@ -31,9 +31,9 @@ def cable_sag_calculator(m_tether_per_length,h_operating_altitude,theta_altitude
     L_star_tether_chord_length = h_operating_altitude/np.sin(theta_altitude_angle) #[m] Chord length of cable, straight line cable length
     
     K1_sag_constant = np.arcsinh(w_tether_per_length*h_operating_altitude/(2*H_horizontal_tension_force*np.sinh(w_tether_per_length*L_horizontal_operating_distance/(2*H_horizontal_tension_force))))-w_tether_per_length*L_horizontal_operating_distance/(2*H_horizontal_tension_force)
-    
+    print(K1_sag_constant)
     K2_sag_constant = - H_horizontal_tension_force/w_tether_per_length*np.cosh(K1_sag_constant)
-    
+    print(K2_sag_constant)
     C_length_sag_cable = H_horizontal_tension_force/w_tether_per_length*(np.sinh(w_tether_per_length*L_horizontal_operating_distance/H_horizontal_tension_force+K1_sag_constant)-np.sinh(K1_sag_constant)) #[m]
     
     cable_angle_calculator(K1_sag_constant, w_tether_per_length, L_horizontal_operating_distance,H_horizontal_tension_force)
@@ -92,7 +92,7 @@ def cable_dimensions_calculator(tension_force_cable, ultimate_tensile_strength, 
 
 
 #inputs:
-m_tether_per_length, r_radius_cable = cable_dimensions_calculator(42000,400*10**6, 1470) #[kg/m], [m]
+m_tether_per_length, r_radius_cable = cable_dimensions_calculator(42000,3000*10**6, 1000) #[kg/m], [m]
 d_diameter_cable_mm = 2*r_radius_cable*1000 #[mm]
 h_operating_altitude = 2500 #[m]
 theta_altitude_angle_deg = 25 #[deg]
