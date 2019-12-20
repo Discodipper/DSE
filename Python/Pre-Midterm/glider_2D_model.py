@@ -31,6 +31,7 @@ VTO_lst = []
 dneeded_lst = []
 tension_lst = []
 spacing_lst = []
+cable_weight_lst = []
 P_density_WRTground_lst = []
 for alt in altitude:
     for S in surfacearea:
@@ -96,7 +97,7 @@ for alt in altitude:
                         gliders.append(glider_number)
                         dneeded_lst.append(d_needed)
                         tension_lst.append(tension)
-                        
+                        cable_weight_lst.append(W_cable/g)
                         V_TO = np.sqrt((2*OEW*g)/(rho_0 * S * (CL+0.3))) #m/s
                         climb_angle = 10*pi/180 #rad
                         CD = 0.07
@@ -118,7 +119,8 @@ print("Power of single unit = ", P_lst[263], "kW")
 print("Number of gliders = ", gliders[263])
 print("Thrust needed for takeoff = ", thrust_lst[263], "N")
 print("Spacing between gliders = ", spacing_lst[263], "m")
-print("Power density with respect to ground = ", P_density_WRTground_lst[263]*1000, "W/m^2")                    
+print("Power density with respect to ground = ", P_density_WRTground_lst[263]*1000, "W/m^2")  
+print("Cable mass", cable_weight_lst[263], "kg")                  
                     
 #number 263
 end = time.time()
