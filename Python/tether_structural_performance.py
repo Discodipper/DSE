@@ -26,9 +26,9 @@ def cable_sag_calculator(m_tether_per_length,h_operating_altitude,theta_altitude
     
     theta_altitude_angle = theta_altitude_angle_deg*np.pi/180 #[rad] Angle between ground station and glider (straight cable)
     
-    L_horizontal_operating_distance = h_operating_altitude/np.tan(theta_altitude_angle) #[m]
+    L_horizontal_operating_distance = h_operating_altitude/np.tan(theta_altitude_angle) #[m] Ground distance
     
-    L_star_tether_chord_length = h_operating_altitude/np.sin(theta_altitude_angle) #[m]
+    L_star_tether_chord_length = h_operating_altitude/np.sin(theta_altitude_angle) #[m] Chord length of cable, straight line cable length
     
     K1_sag_constant = np.arcsinh(w_tether_per_length*h_operating_altitude/(2*H_horizontal_tension_force*np.sinh(w_tether_per_length*L_horizontal_operating_distance/(2*H_horizontal_tension_force))))-w_tether_per_length*L_horizontal_operating_distance/(2*H_horizontal_tension_force)
     
@@ -92,10 +92,10 @@ def cable_dimensions_calculator(tension_force_cable, ultimate_tensile_strength, 
 
 
 #inputs:
-m_tether_per_length, r_radius_cable = cable_dimensions_calculator(42000,5680*10**6, 1560) #[kg/m], [m]
+m_tether_per_length, r_radius_cable = cable_dimensions_calculator(42000,400*10**6, 1470) #[kg/m], [m]
 d_diameter_cable_mm = 2*r_radius_cable*1000 #[mm]
 h_operating_altitude = 2500 #[m]
 theta_altitude_angle_deg = 25 #[deg]
-H_horizontal_tension_force = 37084 #[N]
+H_horizontal_tension_force = 33000 #[N]
 
 C_length_sag_cable = cable_sag_calculator(m_tether_per_length,h_operating_altitude,theta_altitude_angle_deg, H_horizontal_tension_force)
