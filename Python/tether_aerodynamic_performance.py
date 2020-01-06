@@ -14,7 +14,7 @@ from numpy import tan, pi, arange, sin, cos
 def drag_stationary_part_tether_reeled_in(horizontal_distance_tether_2): #in Xw direction
     # test inputs
     diameter_tether_2 = .008 #m # from Caro and TA
-    phi = 0 #degree # from Pranav and Xander
+    phi = 25 #degree # from Pranav and Xander
     
     # inputs
     Cd = 1 #median of Schmel
@@ -70,7 +70,7 @@ def Y_single_tether_drag(Y_tether_length,Y_tether_diameter,h,angle_between_Y_tet
     gamma = angle_between_Y_tethers/360*pi
     Y = Y_tether_length
     
-    # va[zero[x,y,z],...,twohundredseventy[x,y,x]]
+    # va[zero[x,y,z],...,twohundredseventy[x,y,z]]
     va = []
     for xhi in arange(0,2*pi,.5*pi):
         vax = sin(theta)*cos(phi)*isa(h)[3]-Vkr
@@ -120,3 +120,5 @@ def Y_single_tether_drag(Y_tether_length,Y_tether_diameter,h,angle_between_Y_tet
     return(drag_xyz_zero,drag_xyz_ninety,drag_xyz_hundredeighty,drag_xyz_twohundredseventy)
 
 
+drag_reeled_in = drag_stationary_part_tether_reeled_in(3000)
+drag_reeled_out = drag_stationary_part_tether_reeled_out(2000,3000)
