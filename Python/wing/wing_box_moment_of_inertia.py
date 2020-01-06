@@ -4,21 +4,22 @@ Created on Fri Dec 20 11:06:19 2019
 
 @author: thoma
 """
-
 import pathlib
 import scipy as sp
 import copy
 
 pth = pathlib.Path('tether_main')
-print(pth)
-moment_x = 10   #Nm
-moment_y = 2300     #Nm
 corner_stringer_area = 0.005     #m^2
 standard_stringer_area = 0.003   #m^2
-stringer_spacing_top = 0.2  #m
-stringer_spacing_bottom = 0.45  #m
+n_stringers_top = 4
+n_stringers_bottom = 4
 chord_length = 0.5  #m
 chord_height = 0.2  #m
+
+def determine_stringer_spacing(length, number_of_strings):
+    stringer_spacing = length / number_of_strings
+    return stringer_spacing
+
 
 def boom_position_calculator(n_stringers, stringer_spacing, z_position, booms):
     for i in range(n_stringers):
@@ -28,7 +29,7 @@ def boom_position_calculator(n_stringers, stringer_spacing, z_position, booms):
         booms = sp.vstack((booms,single_stringer))
     return booms
 
-def get_stringer_position_matrix():
+def get_stringer_position_matrix(stringer_spacing_top, stringer_spacing_bottom):
     #array to track boom parameters  [A, x, z]
     booms = sp.array([
         [corner_stringer_area, 0, 0],
@@ -46,7 +47,6 @@ def neutral_position_calculator(booms):
     area_distance_x = 0 
     area_distance_z = 0
     total_area = sp.sum(booms[:,0])
-    print ('total_area', total_area)
     for i in range(len(booms)):
         area_distance_x += booms[i, 0] * booms[i, 1]
         area_distance_z += booms[i, 0] * booms[i, 2]
@@ -62,12 +62,14 @@ def correct_for_neutral_axis(booms, neutral_x_position, neutral_z_position):
     return booms_corrected_for_neutral_axis
 
 def moment_of_inertia_boom_method():
+    
+    stringer_spacing_top = determine_stringer_spacing(chord_length, n_stringers_top)
+    stringer_spacing_bottom = determine_stringer_spacing(chord_length, n_stringers_bottom)
     moment_of_inertia_xx = 0 
     moment_of_inertia_zz = 0 
     moment_of_inertia_xz = 0 
     
-    booms = get_stringer_position_matrix()
-    print(booms)
+    booms = get_stringer_position_matrix(stringer_spacing_top, stringer_spacing_bottom)
     neutral_x_position, neutral_z_position = neutral_position_calculator(booms)
     booms_corrected_for_neutral_axis = correct_for_neutral_axis(booms, neutral_x_position, neutral_z_position)
     
@@ -75,9 +77,5 @@ def moment_of_inertia_boom_method():
         moment_of_inertia_xx += booms_corrected_for_neutral_axis[i,0]  * (booms_corrected_for_neutral_axis[i,1] ** 2)
         moment_of_inertia_zz += booms_corrected_for_neutral_axis[i,0] * (booms_corrected_for_neutral_axis[i,2] ** 2)
     return moment_of_inertia_xx, moment_of_inertia_zz, moment_of_inertia_xz
-    
-# moment_of_inertia_xx, moment_of_inertia_zz, moment_of_inertia_xz = moment_of_inertia_boom_method(2, 3)
-# bending_stress_y = ((moment_x * moment_of_inertia_zz - moment_y * moment_of_inertia_xz) * distance_to_centre_of_stress_z + (moment_y * moment_of_inertia_xx - moment_x * moment_of_inertia_xz) * distance_to_centre_of_stress_x) / (moment_of_inertia_xx * moment_of_inertia_zz - moment_of_inertia_xz ** 2)
 
-get_stringer_position_matrix()
-moment_of_inertia_boom_method()
+moment_of_inertia_xx, moment_of_inertia_zz, moment_of_inertia_xz = moment_of_inertia_boom_method()
