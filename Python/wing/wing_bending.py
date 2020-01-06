@@ -68,8 +68,8 @@ def shear_force_wing(local_load_distribution, spanwise_locations):
     local_load_distribution.reverse()
     n = 1
     for i in spanwise_locations[1:]:
-        local_shear = shear_force_previous - (local_load_distribution[n]+local(load_distribution[n-1])/2*(i-spanwise_location[n-1])
-        n = n+1
+        local_shear = shear_force_previous - (local_load_distribution[n]+local_load_distribution[n-1]/2*(i-spanwise_locations[n-1]))
+        n = n + 1
         shear_force_previous = local_shear
         local_shear_distribution.append(local_shear)
     spanwise_locations.reverse()
@@ -77,3 +77,7 @@ def shear_force_wing(local_load_distribution, spanwise_locations):
     local_shear_distribution.reverse()
     return local_shear_distribution
     
+def bending_moment_distribution(local_shear_distribution, spanwise_locations):
+    bending_moment_distribution = [0]
+    bending_moment_previous = 0
+    spanwise_locations.reverse()
