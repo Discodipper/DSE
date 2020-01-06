@@ -21,6 +21,8 @@ wing_weight = 10000 #N
 wing_surface_area = 40 #m^2
 chord_root = 1 #m
 chord_tip = 0.8 #m
+E = 70*10**9 #Pa
+moment_of_inertia_y = 1000 #dit moet nog flink aangepast en geparametriseerd worden
 
 
 def wing_box_segmentation(wing_box_chord_root, wing_box_chord_tip, wing_box_height_root, wing_box_height_tip, number_of_wing_segments, span):
@@ -81,3 +83,30 @@ def bending_moment_distribution(local_shear_distribution, spanwise_locations):
     bending_moment_distribution = [0]
     bending_moment_previous = 0
     spanwise_locations.reverse()
+    local_shear_distribution.reverse()
+    for n in range(1,101):
+        local_bending_moment = bending_moment_previous - (local_shear_distribution[n]+local_shear_distribution[n-1])/2*(spanwise_locations[n]-spanwise_locations[n-1])
+        bending_moment_distribution.append(local_bending_moment)
+        bending_moment_previous = local_bending_moment
+    spanwise_locations.reverse()
+    local_shear_distribution.reverse()
+    bending_moment_distribution.reverse()
+    return bending_moment_distribution
+
+def local_deflection_angle(spanwise_locations, bending_moment_distribution, E, moment_of_inertia_y):
+    deflection_angles = [0]
+    deflection_angle_previous = 0
+    for n in range(1,101):
+        local_deflection_angle = deflection_angle_previous + 0.5*(bending_moment_distribution[n]/E/moment_of_inertia_y+bending_moment_distribution[n-1]/E/moment_of_inertia_y)*(spanwise_locations[n]-spanwise_locations[n-1])
+        deflection_angles.append(local_deflection_angle)
+        deflection_angle_previous = local_deflection_angle
+    return deflection_angles
+
+def local_deflection(spanwise_locations, deflection_angles):
+    deflections = [0]
+    deflection_previous = 0
+    for n in range(1,101):
+        local_deflection = deflection_previous + (deflection_angles[n]+deflection_angles[n-1])/2*(spanwise_locations[n]-spanwise_locations[n-1])
+        deflections.append(local_deflection)
+        deflection_previous = local_deflection
+    return deflections
