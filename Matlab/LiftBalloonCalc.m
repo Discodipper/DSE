@@ -104,6 +104,6 @@ hold on
 
 
 
-
-%plot3(Area_solp,2000:500:20000)
+plot3(h,V,F_b)
+contour3(hc,Vc,F_bc,25)
 
