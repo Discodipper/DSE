@@ -8,23 +8,27 @@ Created on Mon Jan 06 13:33:76 2020
 import matplotlib.pyplot as plt
 import scipy as sp
 import copy
+import sys
+sys.path.append(r'C:\Users\Mart\Documents\GitHub\DSE\Python\Flight Performance\Shape\weight and cg estimation')
 
 """
 This section enters the variables needed in the definitions.
 """ 
+
+from shape_parameters import sweep_angle_deg, wing_area, wing_span, chord_root, chord_tip
 
 wing_box_chord_root = 0.5 #m
 wing_box_chord_tip = 0.4 #m
 wing_box_height_root = 0.2 #m
 wing_box_height_tip = 0.15 #m
 number_of_wing_segments = 1000 #-
-span = 160/3 #m
+span = wing_span #m
 lift = 42000 #N
 load_factor = 1 #-
 wing_weight = 0 #N
-wing_surface_area = 40 #m^2
-chord_root = 1 #m
-chord_tip = 0.5 #m
+wing_surface_area = wing_area #m^2
+chord_root = chord_root #m
+chord_tip = chord_tip #m
 E = 70*10**9 #Pa
 drag_wing = 1000 #N
 moment_of_inertia_y = 0.0003333333 #dit moet nog flink aangepast en geparametriseerd worden
@@ -68,10 +72,10 @@ chord_lengths, spanwise_locations = wing_segmentation(chord_root, chord_tip, num
 #plt.plot(spanwise_locations, chord_lengths)
 #plt.show
 
-#testarea = 0
+testarea = 0
 width = span/2/len(chord_lengths)
-#for n in range(0, len(chord_lengths)):
-#    testarea = testarea + width*chord_lengths[n]
+for n in range(0, len(chord_lengths)):
+    testarea = testarea + width*chord_lengths[n]
     
 #print(testarea)
     
