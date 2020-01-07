@@ -11,3 +11,4 @@ def bending_stress_wing_box(bending_moment_x, bending_moment_y, moment_of_inerti
     bending_stress = (moment_of_inertia_y*bending_moment_x*y_coordinate_from_neutral_axis+bending_moment_y*moment_of_inertia_x*x_coordinate_from_neutral_axis)/moment_of_inertia_x*moment_of_inertia_y
     return bending_stress
 
+def torsional_stress(torsion, radius, polar_moment_of_inertia, )
