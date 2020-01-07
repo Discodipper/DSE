@@ -13,16 +13,19 @@ wing_box_chord_root = 0.5 #m
 wing_box_chord_tip = 0.4 #m
 wing_box_height_root = 0.2 #m
 wing_box_height_tip = 0.15 #m
-number_of_wing_segments = 100 #-
-span = 30 #m
-lift = 42000 #kN
-load_factor = 4 #-
-wing_weight = 10000 #N
+number_of_wing_segments = 1000 #-
+span = 160/3 #m
+lift = 42000 #N
+load_factor = 1 #-
+wing_weight = 0 #N
 wing_surface_area = 40 #m^2
 chord_root = 1 #m
-chord_tip = 0.8 #m
+chord_tip = 0.5 #m
 E = 70*10**9 #Pa
-moment_of_inertia_y = 1000 #dit moet nog flink aangepast en geparametriseerd worden
+drag_wing = 1000 #N
+moment_of_inertia_y = 0.0003333333 #dit moet nog flink aangepast en geparametriseerd worden
+moment_of_inertia_x = 0.001
+#comment: the wing surface area has to be coherent with the span and such, otherwise it messes up
 
 
 def wing_box_segmentation(wing_box_chord_root, wing_box_chord_tip, wing_box_height_root, wing_box_height_tip, number_of_wing_segments, span):
@@ -38,7 +41,7 @@ def wing_box_segmentation(wing_box_chord_root, wing_box_chord_tip, wing_box_heig
         wing_box_heights.append(local_height)
     return wing_box_chord_lengths, spanwise_locations, wing_box_heights
 
-wing_box_segmentation_outcomes = wing_box_segmentation(wing_box_chord_root, wing_box_chord_tip, wing_box_height_root, wing_box_height_tip, number_of_wing_segments, span)
+wing_box_chord_lengths, spanwise_locations, wing_box_heights = wing_box_segmentation(wing_box_chord_root, wing_box_chord_tip, wing_box_height_root, wing_box_height_tip, number_of_wing_segments, span)
 #plt.plot(wing_box_segmentation_outcomes[1], wing_box_segmentation_outcomes[2])
 #plt.show()
 
@@ -52,61 +55,130 @@ def wing_segmentation(chord_root, chord_tip, number_of_wing_segments, span):
         spanwise_locations.append(local_spanwise_location)
     return chord_lengths,spanwise_locations
 
+chord_lengths, spanwise_locations = wing_segmentation(chord_root, chord_tip, number_of_wing_segments, span)
+#plt.plot(spanwise_locations, chord_lengths)
+#plt.show
+
+#testarea = 0
+width = span/2/len(chord_lengths)
+#for n in range(0, len(chord_lengths)):
+#    testarea = testarea + width*chord_lengths[n]
+    
+#print(testarea)
+    
+
 def determine_Kq(lift, load_factor, wing_weight, wing_surface_area):
     Kq = (lift - load_factor*wing_weight)/wing_surface_area
     return Kq
 
-def load_distribution_over_wing(Kq, chord_lengths):
+Kq = determine_Kq(lift, load_factor, wing_weight, wing_surface_area)
+#print(Kq)
+
+def load_distribution_over_wing(Kq, chord_lengths, drag_wing, lift):
     local_load_distribution = []
+    local_drag_distribution = []
     for i in chord_lengths:
         local_load = Kq*i
         local_load_distribution.append(local_load)
-    return local_load_distribution
+        local_drag = Kq*i*drag_wing/lift
+        local_drag_distribution.append(local_drag)
+    return local_load_distribution, local_drag_distribution
 
-def shear_force_wing(local_load_distribution, spanwise_locations):
+local_load_distribution, local_drag_distribution = load_distribution_over_wing(Kq, chord_lengths, drag_wing, lift)
+#plt.plot(spanwise_locations, local_load_distribution)
+#plt.plot(spanwise_locations, local_drag_distribution)
+
+#test_total_lift = 0
+#for n in range(0, len(local_load_distribution)):
+#    test_total_lift = test_total_lift + local_load_distribution[n]*width
+    
+#print(test_total_lift)
+
+#test_total_drag = 0
+#for n in range(0, len(local_load_distribution)):
+#    test_total_drag = test_total_drag + local_drag_distribution[n]*width
+#print(test_total_drag)
+
+def shear_force_wing(local_load_distribution, spanwise_locations, local_drag_distribution):
     local_shear_distribution = [0]
     shear_force_previous = 0
+    local_drag_shear_distribution = [0]
+    drag_shear_force_previous = 0
     spanwise_locations.reverse()
     local_load_distribution.reverse()
-    n = 1
-    for i in spanwise_locations[1:]:
-        local_shear = shear_force_previous - (local_load_distribution[n]+local_load_distribution[n-1]/2*(i-spanwise_locations[n-1]))
-        n = n + 1
+    local_drag_distribution.reverse()
+    for n in range(1,number_of_wing_segments):
+        local_shear = shear_force_previous -(local_load_distribution[n]+local_load_distribution[n-1])/2*(spanwise_locations[n]-spanwise_locations[n-1])
         shear_force_previous = local_shear
         local_shear_distribution.append(local_shear)
+        local_drag_shear = drag_shear_force_previous -(local_drag_distribution[n]+local_drag_distribution[n-1])/2*(spanwise_locations[n]-spanwise_locations[n-1])
+        drag_shear_force_previous = local_drag_shear
+        local_drag_shear_distribution.append(local_drag_shear)
     spanwise_locations.reverse()
     local_load_distribution.reverse()
     local_shear_distribution.reverse()
-    return local_shear_distribution
+    local_drag_shear_distribution.reverse()
+    return local_shear_distribution, local_drag_shear_distribution
+
+local_shear_distribution, local_drag_shear_distribution = shear_force_wing(local_load_distribution, spanwise_locations, local_drag_distribution)
+#plt.plot(spanwise_locations, local_shear_distribution)
+#plt.plot(spanwise_locations, local_drag_shear_distribution)
     
-def bending_moment_distribution(local_shear_distribution, spanwise_locations):
+def bending_moment_distribution(local_shear_distribution, spanwise_locations, local_drag_shear_distribution):
     bending_moment_distribution = [0]
     bending_moment_previous = 0
+    drag_bending_moment_distribution = [0]
+    drag_bending_moment_previous = 0
+    local_drag_shear_distribution.reverse()
     spanwise_locations.reverse()
     local_shear_distribution.reverse()
-    for n in range(1,101):
+    for n in range(1,number_of_wing_segments):
         local_bending_moment = bending_moment_previous - (local_shear_distribution[n]+local_shear_distribution[n-1])/2*(spanwise_locations[n]-spanwise_locations[n-1])
         bending_moment_distribution.append(local_bending_moment)
         bending_moment_previous = local_bending_moment
+        local_drag_bending_moment = drag_bending_moment_previous - (local_drag_shear_distribution[n]+local_drag_shear_distribution[n-1])/2*(spanwise_locations[n]-spanwise_locations[n-1])
+        drag_bending_moment_distribution.append(local_drag_bending_moment)
+        drag_bending_moment_previous = local_drag_bending_moment
     spanwise_locations.reverse()
     local_shear_distribution.reverse()
     bending_moment_distribution.reverse()
-    return bending_moment_distribution
+    drag_bending_moment_distribution.reverse()
+    return bending_moment_distribution, drag_bending_moment_distribution
 
-def local_deflection_angle(spanwise_locations, bending_moment_distribution, E, moment_of_inertia_y):
+bending_moment_distribution, drag_bending_moment_distribution = bending_moment_distribution(local_shear_distribution, spanwise_locations, local_drag_shear_distribution)
+#plt.plot(spanwise_locations, bending_moment_distribution)
+#plt.plot(spanwise_locations, drag_bending_moment_distribution)
+
+def local_deflection_angle(spanwise_locations, bending_moment_distribution, E, moment_of_inertia_y, drag_bending_moment_distribution, moment_of_inertia_x):
     deflection_angles = [0]
     deflection_angle_previous = 0
-    for n in range(1,101):
+    drag_deflection_angles = [0]
+    drag_deflection_angle_previous = 0
+    for n in range(1,number_of_wing_segments):
         local_deflection_angle = deflection_angle_previous + 0.5*(bending_moment_distribution[n]/E/moment_of_inertia_y+bending_moment_distribution[n-1]/E/moment_of_inertia_y)*(spanwise_locations[n]-spanwise_locations[n-1])
         deflection_angles.append(local_deflection_angle)
         deflection_angle_previous = local_deflection_angle
-    return deflection_angles
+        local_drag_deflection_angle = drag_deflection_angle_previous + 0.5*(drag_bending_moment_distribution[n]/E/moment_of_inertia_x+drag_bending_moment_distribution[n-1]/E/moment_of_inertia_x)*(spanwise_locations[n]-spanwise_locations[n-1])
+        drag_deflection_angles.append(local_drag_deflection_angle)
+        drag_deflection_angle_previous = local_drag_deflection_angle
+    return deflection_angles, drag_deflection_angles
 
-def local_deflection(spanwise_locations, deflection_angles):
+deflection_angles, drag_deflection_angles = local_deflection_angle(spanwise_locations, bending_moment_distribution, E, moment_of_inertia_y, drag_bending_moment_distribution, moment_of_inertia_x)
+
+def local_deflection(spanwise_locations, deflection_angles, drag_deflection_angles):
     deflections = [0]
     deflection_previous = 0
-    for n in range(1,101):
+    drag_deflections = [0]
+    drag_deflection_previous = 0
+    for n in range(1,number_of_wing_segments):
         local_deflection = deflection_previous + (deflection_angles[n]+deflection_angles[n-1])/2*(spanwise_locations[n]-spanwise_locations[n-1])
         deflections.append(local_deflection)
         deflection_previous = local_deflection
-    return deflections
+        local_drag_deflection = drag_deflection_previous + (drag_deflection_angles[n]+drag_deflection_angles[n-1])/2*(spanwise_locations[n]-spanwise_locations[n-1])
+        drag_deflections.append(local_drag_deflection)
+        drag_deflection_previous = local_drag_deflection
+    return deflections, drag_deflections
+
+deflections, drag_deflections = local_deflection(spanwise_locations, deflection_angles, drag_deflection_angles)
+#plt.plot(spanwise_locations, deflections)
+#plt.plot(spanwise_locations, drag_deflections)
