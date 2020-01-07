@@ -9,6 +9,10 @@ import matplotlib.pyplot as plt
 import scipy as sp
 import copy
 
+"""
+This section enters the variables needed in the definitions.
+""" 
+
 wing_box_chord_root = 0.5 #m
 wing_box_chord_tip = 0.4 #m
 wing_box_height_root = 0.2 #m
@@ -27,7 +31,9 @@ moment_of_inertia_y = 0.0003333333 #dit moet nog flink aangepast en geparametris
 moment_of_inertia_x = 0.001
 #comment: the wing surface area has to be coherent with the span and such, otherwise it messes up
 
-
+"""
+This piece segments the wing box in a number of bits, calculating the chords of wing box 
+"""
 def wing_box_segmentation(wing_box_chord_root, wing_box_chord_tip, wing_box_height_root, wing_box_height_tip, number_of_wing_segments, span):
     wing_box_chord_lengths = []
     spanwise_locations = []
@@ -45,6 +51,9 @@ wing_box_chord_lengths, spanwise_locations, wing_box_heights = wing_box_segmenta
 #plt.plot(wing_box_segmentation_outcomes[1], wing_box_segmentation_outcomes[2])
 #plt.show()
 
+"""
+This part enters the segmentation of the wing, calculting the different cords. It is tested to see if it adds up as lift
+"""
 def wing_segmentation(chord_root, chord_tip, number_of_wing_segments, span):
     chord_lengths = []
     spanwise_locations = []
@@ -66,7 +75,9 @@ width = span/2/len(chord_lengths)
     
 #print(testarea)
     
-
+"""
+This part calculates the integrating constant for the wing loadings
+"""
 def determine_Kq(lift, load_factor, wing_weight, wing_surface_area):
     Kq = (lift - load_factor*wing_weight)/wing_surface_area
     return Kq
@@ -74,6 +85,9 @@ def determine_Kq(lift, load_factor, wing_weight, wing_surface_area):
 Kq = determine_Kq(lift, load_factor, wing_weight, wing_surface_area)
 #print(Kq)
 
+"""
+This part calculates the distribution of loads over the wing, with a specific laod for every subpart of the wing. It is tested on total lift.
+"""
 def load_distribution_over_wing(Kq, chord_lengths, drag_wing, lift):
     local_load_distribution = []
     local_drag_distribution = []
@@ -99,6 +113,9 @@ local_load_distribution, local_drag_distribution = load_distribution_over_wing(K
 #    test_total_drag = test_total_drag + local_drag_distribution[n]*width
 #print(test_total_drag)
 
+"""
+The shear forces are calculated in this part
+"""
 def shear_force_wing(local_load_distribution, spanwise_locations, local_drag_distribution):
     local_shear_distribution = [0]
     shear_force_previous = 0
@@ -123,7 +140,10 @@ def shear_force_wing(local_load_distribution, spanwise_locations, local_drag_dis
 local_shear_distribution, local_drag_shear_distribution = shear_force_wing(local_load_distribution, spanwise_locations, local_drag_distribution)
 #plt.plot(spanwise_locations, local_shear_distribution)
 #plt.plot(spanwise_locations, local_drag_shear_distribution)
-    
+
+"""
+This part calculates the bending moments in the wing caused by the shear
+"""    
 def bending_moment_distribution(local_shear_distribution, spanwise_locations, local_drag_shear_distribution):
     bending_moment_distribution = [0]
     bending_moment_previous = 0
@@ -149,6 +169,9 @@ bending_moment_distribution, drag_bending_moment_distribution = bending_moment_d
 #plt.plot(spanwise_locations, bending_moment_distribution)
 #plt.plot(spanwise_locations, drag_bending_moment_distribution)
 
+"""
+This part calculates the deflection angle at every part
+"""
 def local_deflection_angle(spanwise_locations, bending_moment_distribution, E, moment_of_inertia_y, drag_bending_moment_distribution, moment_of_inertia_x):
     deflection_angles = [0]
     deflection_angle_previous = 0
@@ -165,6 +188,9 @@ def local_deflection_angle(spanwise_locations, bending_moment_distribution, E, m
 
 deflection_angles, drag_deflection_angles = local_deflection_angle(spanwise_locations, bending_moment_distribution, E, moment_of_inertia_y, drag_bending_moment_distribution, moment_of_inertia_x)
 
+"""
+This part calculates the deflection of the wing due to the bending/loads
+"""
 def local_deflection(spanwise_locations, deflection_angles, drag_deflection_angles):
     deflections = [0]
     deflection_previous = 0
