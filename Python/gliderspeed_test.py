@@ -131,22 +131,10 @@ for reelspeed in reel_speed_array:
                 
                 Lambda = tangential_velocity_factor(polar_angle, azimuth_angle, hi, glide_ratio, reel_factor)[0]
                 
-                
-                
                 apparent_wind_speed_spherical, apparent_wind_speed_cartesian = apparent_wind_speed_values(windspeed, reelspeed, Lambda, polar_angle, azimuth_angle, hi)
-                
-                
-                # wind_component = np.matrix([[np.sin(polar_angle) * np.cos(azimuth_angle)], [np.cos(polar_angle) * np.cos(azimuth_angle)], [-np.sin(azimuth_angle)]]) * windspeed
-                # kite_radial_component = np.matrix([[1], [0], [0]]) * reelspeed
-                # kite_tangential_component = np.matrix([[0], [np.cos(hi)], [np.sin(hi)]]) * kite_speed_tangential
-                
-                # apparent_wind_speed_spherical = wind_component - kite_radial_component - kite_tangential_component
-                # apparent_wind_speed_cartesian = spherical_to_cartesian(apparent_wind_speed_spherical, polar_angle, azimuth_angle)
-                
 
                 if isnan(Lambda)==False:
                     magnitude_apparent_wind_speed = apparent_wind_speed_magnitude(apparent_wind_speed_cartesian)
-                    
                     tether_force = total_glider_pulling_force(air_density, lift_coefficient, drag_coefficient, magnitude_apparent_wind_speed, wing_area)
                     
                     
