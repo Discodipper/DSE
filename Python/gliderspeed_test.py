@@ -59,6 +59,33 @@ def max_elevation_angle(glide_ratio, reel_factor):
     beta_max = np.arccos((reel_factor*glide_ratio**2 + np.sqrt(1 + glide_ratio**2 * (1-reel_factor**2)))/(1 + glide_ratio**2))
     return(beta_max)
 
+def apparent_wind_speed_values(windspeed, reelspeed, Lambda, polar_angle, azimuth_angle, hi):
+    kite_speed_tangential = Lambda * windspeed
+    wind_component = np.matrix([[np.sin(polar_angle) * np.cos(azimuth_angle)], [np.cos(polar_angle) * np.cos(azimuth_angle)], [-np.sin(azimuth_angle)]]) * windspeed
+    kite_radial_component = np.matrix([[1], [0], [0]]) * reelspeed
+    kite_tangential_component = np.matrix([[0], [np.cos(hi)], [np.sin(hi)]]) * kite_speed_tangential
+    V_a_spherical = wind_component - kite_radial_component - kite_tangential_component
+    V_a_cartesian = spherical_to_cartesian(V_a_spherical, polar_angle, azimuth_angle)
+    return(V_a_spherical, V_a_cartesian)
+
+def apparent_wind_speed_magnitude(apparent_wind_speed_cartesian):
+    V_a_magnitude = la.norm(np.array(apparent_wind_speed_cartesian))
+    return(V_a_magnitude)
+
+def total_glider_pulling_force(rho, lift_coefficient, drag_coefficient, apparent_wind_speed_magnitude, wing_area):
+    F_t = 0.5*rho*resultant_force_coefficient(lift_coefficient, drag_coefficient) * apparent_wind_speed_magnitude**2 * wing_area
+    return(F_t)
+
+def polarangle(elevation_angle):
+    #Make sure the input elevation angle is in radians
+    THETA = (pi/2) - elevation_angle
+    return(THETA)
+
+def generator_power(tether_force, reelspeed):
+    P_gen = tether_force * reelspeed
+    #Still to be completed
+    return(P_gen)
+
 apparent_wind_speed_lst = []
 apparent_wind_speed_magnitude_lst = []
 reelspeed_lst = []
@@ -97,30 +124,30 @@ for reelspeed in reel_speed_array:
         for operation_angle in beta:
             temperature, pressure, air_density, windspeed = isa(altitude)
             reel_factor = reeling_factor(reelspeed, windspeed)
-            polar_angle = (pi/2) - operation_angle #rad
+            polar_angle = polarangle(operation_angle) #rad
             
             
             if max_elevation_angle(glide_ratio, reel_factor) <= operation_angle and azimuth_constraint(polar_angle, azimuth_angle, glide_ratio, reel_factor):
                 
                 Lambda = tangential_velocity_factor(polar_angle, azimuth_angle, hi, glide_ratio, reel_factor)[0]
-                A = tangential_velocity_factor(polar_angle, azimuth_angle, hi, glide_ratio, reel_factor)[1]
-                B = tangential_velocity_factor(polar_angle, azimuth_angle, hi, glide_ratio, reel_factor)[2]
-                
-                kite_speed_tangential = Lambda * windspeed
                 
                 
-                wind_component = np.matrix([[np.sin(polar_angle) * np.cos(azimuth_angle)], [np.cos(polar_angle) * np.cos(azimuth_angle)], [-np.sin(azimuth_angle)]]) * windspeed
-                kite_radial_component = np.matrix([[1], [0], [0]]) * reelspeed
-                kite_tangential_component = np.matrix([[0], [np.cos(hi)], [np.sin(hi)]]) * kite_speed_tangential
                 
-                apparent_wind_speed_spherical = wind_component - kite_radial_component - kite_tangential_component
-                apparent_wind_speed_cartesian = spherical_to_cartesian(apparent_wind_speed_spherical, polar_angle, azimuth_angle)
+                apparent_wind_speed_spherical, apparent_wind_speed_cartesian = apparent_wind_speed_values(windspeed, reelspeed, Lambda, polar_angle, azimuth_angle, hi)
+                
+                
+                # wind_component = np.matrix([[np.sin(polar_angle) * np.cos(azimuth_angle)], [np.cos(polar_angle) * np.cos(azimuth_angle)], [-np.sin(azimuth_angle)]]) * windspeed
+                # kite_radial_component = np.matrix([[1], [0], [0]]) * reelspeed
+                # kite_tangential_component = np.matrix([[0], [np.cos(hi)], [np.sin(hi)]]) * kite_speed_tangential
+                
+                # apparent_wind_speed_spherical = wind_component - kite_radial_component - kite_tangential_component
+                # apparent_wind_speed_cartesian = spherical_to_cartesian(apparent_wind_speed_spherical, polar_angle, azimuth_angle)
                 
 
                 if isnan(Lambda)==False:
-                    apparent_wind_speed_magnitude = la.norm(np.array(apparent_wind_speed_cartesian))
-                    tether_force = 0.5*air_density*resultant_force_coefficient(lift_coefficient, drag_coefficient) * apparent_wind_speed_magnitude**2 * wing_area
-                    generator_power = tether_force * reelspeed
+                    magnitude_apparent_wind_speed = apparent_wind_speed_magnitude(apparent_wind_speed_cartesian)
+                    
+                    tether_force = total_glider_pulling_force(air_density, lift_coefficient, drag_coefficient, magnitude_apparent_wind_speed, wing_area)
                     
                     
                     apparent_wind_speed_lst.append(apparent_wind_speed_cartesian)
@@ -130,24 +157,18 @@ for reelspeed in reel_speed_array:
                     operation_angle_lst.append(operation_angle)
                     azimuth_angle_lst.append(azimuth_angle)
                     Lambda_lst.append(Lambda)
-                    a_lst.append(A)
-                    b_lst.append(B)
-                    b_f_lst.append(B - reel_factor)
-                    wind_component_lst.append(wind_component)
-                    kite_radial_component_lst.append(kite_radial_component)
-                    kite_tangential_component_lst.append(kite_tangential_component)
                     V_w_lst.append(windspeed)
                     tether_force_lst.append(tether_force)
-                    generator_power_lst.append(generator_power)
+                    generator_power_lst.append(generator_power(tether_force, reelspeed))
                     reel_factor_lst.append(reel_factor)
                     
-                    if apparent_wind_speed_magnitude > max_apparent_wind_speed_magnitude:
-                        max_apparent_wind_speed_magnitude = apparent_wind_speed_magnitude
+                    if magnitude_apparent_wind_speed > max_apparent_wind_speed_magnitude:
+                        max_apparent_wind_speed_magnitude = magnitude_apparent_wind_speed
                         corresponding_altitude = altitude
                         corresponding_reel_speed = reelspeed
                         corresponding_wind_speed = windspeed
                         corresponding_tether_force = tether_force
-                        corresponding_generator_power = generator_power
+                        corresponding_generator_power = generator_power(tether_force, reelspeed)
                         corresponding_beta = operation_angle
                         corresponding_apparent_wind_speed = apparent_wind_speed_cartesian
                         
