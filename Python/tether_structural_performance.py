@@ -99,3 +99,9 @@ theta_altitude_angle_deg = 25 #[deg]
 H_horizontal_tension_force = 33000 #[N]
 
 C_length_sag_cable = cable_sag_calculator(m_tether_per_length,h_operating_altitude,theta_altitude_angle_deg, H_horizontal_tension_force)
+
+
+
+
+
+

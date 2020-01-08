@@ -21,7 +21,7 @@ altitude_array = np.arange(2000, 3025, 25)
 beta = (np.arange(20, 90, 2))*pi/180 #rad
 #phi = (np.arange(0, 95, 5))*pi/180 #rad
 azimuth_angle = 0 #rad
-hi = 90*pi/180 #rad
+hi = 270*pi/180 #rad
 
 
 drag_coefficient = 0.2
@@ -76,6 +76,9 @@ def total_glider_pulling_force(rho, lift_coefficient, drag_coefficient, apparent
     F_t = 0.5*rho*resultant_force_coefficient(lift_coefficient, drag_coefficient) * apparent_wind_speed_magnitude**2 * wing_area
     return(F_t)
 
+def pulling_force_in(rho, drag_coefficient, apparent_wind_speed_magnitude, wing_area):
+    
+
 def polarangle(elevation_angle):
     #Make sure the input elevation angle is in radians
     THETA = (pi/2) - elevation_angle
@@ -85,6 +88,14 @@ def generator_power(tether_force, reelspeed):
     P_gen = tether_force * reelspeed
     #Still to be completed
     return(P_gen)
+
+def reel_out_effective_angle_of_attack(V_a):
+    V_a_x = V_a.item(0)
+    V_a_y = abs(V_a.item(1))
+    aoa = np.arctan2(V_a_x/V_a_y)
+    return(aoa)
+
+
 
 apparent_wind_speed_lst = []
 apparent_wind_speed_magnitude_lst = []
@@ -113,7 +124,7 @@ corresponding_reel_speed = 0
 corresponding_wind_speed = 0
 corresponding_tether_force = 0
 corresponding_generator_power = 0
-
+corres
 
 
 
@@ -135,7 +146,9 @@ for reelspeed in reel_speed_array:
 
                 if isnan(Lambda)==False:
                     magnitude_apparent_wind_speed = apparent_wind_speed_magnitude(apparent_wind_speed_cartesian)
-                    tether_force = total_glider_pulling_force(air_density, lift_coefficient, drag_coefficient, magnitude_apparent_wind_speed, wing_area)
+                    total_lift = total_glider_pulling_force(air_density, lift_coefficient, drag_coefficient, magnitude_apparent_wind_speed, wing_area)
+                    
+                    
                     
                     
                     apparent_wind_speed_lst.append(apparent_wind_speed_cartesian)
@@ -146,8 +159,8 @@ for reelspeed in reel_speed_array:
                     azimuth_angle_lst.append(azimuth_angle)
                     Lambda_lst.append(Lambda)
                     V_w_lst.append(windspeed)
-                    tether_force_lst.append(tether_force)
-                    generator_power_lst.append(generator_power(tether_force, reelspeed))
+                    #tether_force_lst.append(tether_force)
+                    #generator_power_lst.append(generator_power(tether_force, reelspeed))
                     reel_factor_lst.append(reel_factor)
                     
                     if magnitude_apparent_wind_speed > max_apparent_wind_speed_magnitude:
@@ -155,10 +168,11 @@ for reelspeed in reel_speed_array:
                         corresponding_altitude = altitude
                         corresponding_reel_speed = reelspeed
                         corresponding_wind_speed = windspeed
-                        corresponding_tether_force = tether_force
-                        corresponding_generator_power = generator_power(tether_force, reelspeed)
+                        #corresponding_tether_force = tether_force
+                        #corresponding_generator_power = generator_power(tether_force, reelspeed)
                         corresponding_beta = operation_angle
                         corresponding_apparent_wind_speed = apparent_wind_speed_cartesian
+                        corresponding_apparent_wind_speed_spherical = apparent_wind_speed_spherical
                         
             
         else:
