@@ -75,18 +75,18 @@ def apparent_wind_speed_magnitude(apparent_wind_speed_cartesian):
     return(V_a_magnitude)
     
 def tether_force_max(V_a, air_density, lift_coefficient, drag_coefficient, wing_area, elevation_angle):
-    F_t_max = (0.5*air_density*resultant_force_coefficient(lift_coefficient, drag_coefficient)* V_a_magnitude**2 * wing_area)
+    F_t_max = (0.5*air_density*resultant_force_coefficient(lift_coefficient, drag_coefficient)* V_a**2 * wing_area)
     F_t_max_horizontal = F_t_max * np.sin(elevation_angle)
     return(F_t_max, F_t_max_horizontal)
 
 def tether_mass_guess(tether_diameter_guess, tether_density, altitude, elevation_angle, F_t_max_horizontal)
-    tethermass_per_length = pi*(d/2)**2 * density_tether
+    tethermass_per_length = pi*(tether_diameter_guess/2)**2 * tether_density
     tether_length = cable_sag_calculator(tethermass_per_length, altitude, elevation_angle, F_t_max_horizontal)
     tethermass_guess = tethermass_per_length * tether_length
     return(tethermass_guess)
 
-def force_z_direction(apparent_wind_speed_cartesian, air_density, wing_area, drag_coefficient):
-    V_a_z = apparent_wind_speed_cartesian.item(2)
+def force_z_direction(V_a_z, air_density, wing_area, drag_coefficient):
+    #V_a_z = apparent_wind_speed_cartesian.item(2)
     F_z = 0.5 * air_density * V_a_z**2 * wing_area * drag_coefficient
     return(F_z)
 
