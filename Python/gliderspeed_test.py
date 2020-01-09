@@ -98,30 +98,7 @@ def net_tether_force(V_a, air_density, lift_coefficient, drag_coefficient, wing_
 def tether_diameter_new(F_t_net_z, ultimate_tensile_strength, density_tether):
     tethermass_per_length_new = cable_dimensions_calculator(F_t_net_z, ultimate_tensile_strength, density_tether)[0]
     tether_diameter_new = cable_dimensions_calculator(F_t_net_z, ultimate_tensile_strength, density_tether)[1] * 2
-    return(tether_diameter_new)
-
-def total_glider_pulling_force(rho, lift_coefficient, drag_coefficient, V_a_cartesian, wing_area, glidermass, tether_diameter, g_gravity, elevation_angle, ultimate_tensile_strength, density_tether):
-    d = tether_diameter
-    d_diff = 1
-    # while abs(d_diff) < 0.0005:
-   
-    
-
-    
-    
-    F_t_net = F_t_max - (glidermass*g_gravity*np.cos(elevation_angle)) - (tethermass*g_gravity) - (F_z*np.cos(elevation_angle))
-    
-    
-    
-    
-    d_diff = tether_diameter_new - d
-    d = tether_diameter_new
-    # return(F_t)
-    
-
-
-#def pulling_force_in(rho, drag_coefficient, apparent_wind_speed_magnitude, wing_area):
-    
+    return(tether_diameter_new)    
 
 def polarangle(elevation_angle):
     #Make sure the input elevation angle is in radians
