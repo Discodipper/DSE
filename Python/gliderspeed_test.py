@@ -11,8 +11,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import time
 from ISA_calculator import isa
-from tether_structural_performance import cable_dimensions_calculator
-from tether_structural_performance import cable_sag_calculator
+from flight_dynamics_tether_weight import cable_dimensions_calculator
+from flight_dynamics_tether_weight import cable_sag_calculator
 import scipy.linalg as la
 start = time.time()
 
