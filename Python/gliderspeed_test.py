@@ -11,6 +11,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import time
 from ISA_calculator import isa
+from flight_dynamics_tether_weight import cable_dimensions_calculator
+from flight_dynamics_tether_weight import cable_sag_calculator
 import scipy.linalg as la
 start = time.time()
 
@@ -22,7 +24,7 @@ beta = (np.arange(20, 90, 2))*pi/180 #rad
 #phi = (np.arange(0, 95, 5))*pi/180 #rad
 azimuth_angle = 0 #rad
 hi = 270*pi/180 #rad
-
+g_gravity = 9.80665
 
 drag_coefficient = 0.2
 lift_coefficient = 2.0
@@ -71,12 +73,54 @@ def apparent_wind_speed_values(windspeed, reelspeed, Lambda, polar_angle, azimut
 def apparent_wind_speed_magnitude(apparent_wind_speed_cartesian):
     V_a_magnitude = la.norm(np.array(apparent_wind_speed_cartesian))
     return(V_a_magnitude)
+    
+def tether_force_max(V_a, air_density, lift_coefficient, drag_coefficient, wing_area, elevation_angle):
+    F_t_max = (0.5*air_density*resultant_force_coefficient(lift_coefficient, drag_coefficient)* V_a**2 * wing_area)
+    F_t_max_horizontal = F_t_max * np.sin(elevation_angle)
+    return(F_t_max, F_t_max_horizontal)
 
-def total_glider_pulling_force(rho, lift_coefficient, drag_coefficient, apparent_wind_speed_magnitude, wing_area):
-    F_t = 0.5*rho*resultant_force_coefficient(lift_coefficient, drag_coefficient) * apparent_wind_speed_magnitude**2 * wing_area
-    return(F_t)
+def tether_mass_guess(tether_diameter_guess, tether_density, altitude, elevation_angle, F_t_max_horizontal)
+    tethermass_per_length = pi*(tether_diameter_guess/2)**2 * tether_density
+    tether_length = cable_sag_calculator(tethermass_per_length, altitude, elevation_angle, F_t_max_horizontal)
+    tethermass_guess = tethermass_per_length * tether_length
+    return(tethermass_guess)
 
-def pulling_force_in(rho, drag_coefficient, apparent_wind_speed_magnitude, wing_area):
+def force_z_direction(V_a_z, air_density, wing_area, drag_coefficient):
+    #V_a_z = apparent_wind_speed_cartesian.item(2)
+    F_z = 0.5 * air_density * V_a_z**2 * wing_area * drag_coefficient
+    return(F_z)
+
+def net_tether_force(V_a, air_density, lift_coefficient, drag_coefficient, wing_area, elevation_angle, V_a_z, glidermass, g_gravity, elevation_angle, F_z):
+    F_t_net = tether_force_max(V_a, air_density, lift_coefficient, drag_coefficient, wing_area, elevation_angle, V_a_z) - (glidermass*g_gravity*np.cos(elevation_angle)) - (tethermass*g_gravity) - (F_z*np.cos(elevation_angle))
+    F_t_net_z = F_t_net * np.sin(elevation_angle)
+    return(F_t_net, F_t_net_z)
+
+def tether_diameter_new(F_t_net_z, ultimate_tensile_strength, density_tether):
+    tethermass_per_length_new = cable_dimensions_calculator(F_t_net_z, ultimate_tensile_strength, density_tether)[0]
+    tether_diameter_new = cable_dimensions_calculator(F_t_net_z, ultimate_tensile_strength, density_tether)[1] * 2
+    return(tether_diameter_new)
+
+def total_glider_pulling_force(rho, lift_coefficient, drag_coefficient, V_a_cartesian, wing_area, glidermass, tether_diameter, g_gravity, elevation_angle, ultimate_tensile_strength, density_tether):
+    d = tether_diameter
+    d_diff = 1
+    # while abs(d_diff) < 0.0005:
+   
+    
+
+    
+    
+    F_t_net = F_t_max - (glidermass*g_gravity*np.cos(elevation_angle)) - (tethermass*g_gravity) - (F_z*np.cos(elevation_angle))
+    
+    
+    
+    
+    d_diff = tether_diameter_new - d
+    d = tether_diameter_new
+    # return(F_t)
+    
+
+
+#def pulling_force_in(rho, drag_coefficient, apparent_wind_speed_magnitude, wing_area):
     
 
 def polarangle(elevation_angle):
@@ -124,7 +168,6 @@ corresponding_reel_speed = 0
 corresponding_wind_speed = 0
 corresponding_tether_force = 0
 corresponding_generator_power = 0
-corres
 
 
 
@@ -146,7 +189,14 @@ for reelspeed in reel_speed_array:
 
                 if isnan(Lambda)==False:
                     magnitude_apparent_wind_speed = apparent_wind_speed_magnitude(apparent_wind_speed_cartesian)
-                    total_lift = total_glider_pulling_force(air_density, lift_coefficient, drag_coefficient, magnitude_apparent_wind_speed, wing_area)
+                    V_a_z = apparent_wind_speed_cartesian.item(2)
+                    
+                    
+                    tether_diameter_initial_guess = 0.07 #m
+                    total_tether_force, total_tether_force_horizontal = tether_force_max(V_a, air_density, lift_coefficient, drag_coefficient, wing_area, operation_angle, V_a_z)
+                    force_in_z = force_z_direction(magnitude_apparent_wind_speed, air_density, wing_area, drag_coefficient)
+                    tether_mass_guess_value = tether_mass_guess(tether_diameter_initial_guess, tether_density, altitude, operation_angle, force_in_z)
+                    tether_force_net = net_tether_force(magnitude_apparent_wind_speed, air_density, lift_coefficient, drag_coefficient, wing_area, operation_angle)
                     
                     
                     
