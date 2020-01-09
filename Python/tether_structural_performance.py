@@ -31,20 +31,20 @@ def cable_sag_calculator(m_tether_per_length,h_operating_altitude,theta_altitude
     L_star_tether_chord_length = h_operating_altitude/np.sin(theta_altitude_angle) #[m] Chord length of cable, straight line cable length
     
     K1_sag_constant = np.arcsinh(w_tether_per_length*h_operating_altitude/(2*H_horizontal_tension_force*np.sinh(w_tether_per_length*L_horizontal_operating_distance/(2*H_horizontal_tension_force))))-w_tether_per_length*L_horizontal_operating_distance/(2*H_horizontal_tension_force)
-    print(K1_sag_constant)
+    #print(K1_sag_constant)
     K2_sag_constant = - H_horizontal_tension_force/w_tether_per_length*np.cosh(K1_sag_constant)
-    print(K2_sag_constant)
+    #print(K2_sag_constant)
     C_length_sag_cable = H_horizontal_tension_force/w_tether_per_length*(np.sinh(w_tether_per_length*L_horizontal_operating_distance/H_horizontal_tension_force+K1_sag_constant)-np.sinh(K1_sag_constant)) #[m]
     
     cable_angle_calculator(K1_sag_constant, w_tether_per_length, L_horizontal_operating_distance,H_horizontal_tension_force)
     
     cable_coordinates_calculator(L_horizontal_operating_distance, H_horizontal_tension_force, w_tether_per_length,K1_sag_constant,K2_sag_constant)
     
-    print('total cable length', C_length_sag_cable, 'm')
-    print('straight cable length', L_star_tether_chord_length, 'm')
-    print('percentage difference = ', (C_length_sag_cable-L_star_tether_chord_length)/L_star_tether_chord_length*100, '%')
+    #print('total cable length', C_length_sag_cable, 'm')
+    #print('straight cable length', L_star_tether_chord_length, 'm')
+    #print('percentage difference = ', (C_length_sag_cable-L_star_tether_chord_length)/L_star_tether_chord_length*100, '%')
     
-    return C_length_sag_cable;    
+    return(C_length_sag_cable)   
 ###        
 
 
@@ -59,7 +59,7 @@ def cable_angle_calculator(K1_sag_constant, w_tether_per_length, L_horizontal_op
         print('ERROR, tether touches ground, theta =', theta_tension_angle_ground*np.pi/180, 'degrees')
     else:
         print('Phew, we are OK, theta=', theta_tension_angle_ground*180/np.pi, 'degrees')
-    return theta_tension_angle_glider, theta_tension_angle_ground;
+    return(theta_tension_angle_glider, theta_tension_angle_ground)
 ###
 
 ###
@@ -77,7 +77,7 @@ def cable_coordinates_calculator(L_horizontal_operating_distance, H_horizontal_t
     plt.xlim(0, L_horizontal_operating_distance+0.1*L_horizontal_operating_distance)
     plt.gca().set_aspect('equal', adjustable='box')
     
-    return x_cable_coordinate, y_cable_coordinate
+    return(x_cable_coordinate, y_cable_coordinate)
 ###
 
 ###
@@ -87,7 +87,7 @@ def cable_dimensions_calculator(tension_force_cable, ultimate_tensile_strength, 
     r_radius_cable = np.sqrt(A_crosssectional_area_cable/np.pi) #[m]
     
     m_tether_per_length = density_tether*A_crosssectional_area_cable
-    return m_tether_per_length, r_radius_cable;
+    return(m_tether_per_length, r_radius_cable)
 ###
 
 
