@@ -11,6 +11,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import time
 from ISA_calculator import isa
+from tether_structural_performance import cable_dimensions_calculator
+from tether_structural_performance import cable_sag_calculator
 import scipy.linalg as la
 start = time.time()
 
@@ -21,8 +23,8 @@ altitude_array = np.arange(2000, 3025, 25)
 beta = (np.arange(20, 90, 2))*pi/180 #rad
 #phi = (np.arange(0, 95, 5))*pi/180 #rad
 azimuth_angle = 0 #rad
-hi = 90*pi/180 #rad
-
+hi = 270*pi/180 #rad
+g_gravity = 9.80665
 
 drag_coefficient = 0.2
 lift_coefficient = 2.0
@@ -72,9 +74,33 @@ def apparent_wind_speed_magnitude(apparent_wind_speed_cartesian):
     V_a_magnitude = la.norm(np.array(apparent_wind_speed_cartesian))
     return(V_a_magnitude)
 
-def total_glider_pulling_force(rho, lift_coefficient, drag_coefficient, apparent_wind_speed_magnitude, wing_area):
-    F_t = 0.5*rho*resultant_force_coefficient(lift_coefficient, drag_coefficient) * apparent_wind_speed_magnitude**2 * wing_area
-    return(F_t)
+def total_glider_pulling_force(rho, lift_coefficient, drag_coefficient, V_a_cartesian, wing_area, glidermass, tether_diameter, g_gravity, elevation_angle, ultimate_tensile_strength, density_tether):
+    d = tether_diameter
+    d_diff = 1
+    # while abs(d_diff) < 0.0005:
+    V_a_magnitude = apparent_wind_speed_magnitude(V_a_cartesian)
+    V_a_z = V_a_cartesian.item(2)
+    F_z = 0.5*rho*drag_coefficient*V_a_z**2*S
+    F_t_max = (0.5*rho*resultant_force_coefficient(lift_coefficient, drag_coefficient)* V_a_magnitude**2 * wing_area)
+    F_t_max_horizontal = F_t_max * np.sin(elevation_angle)
+    
+    tethermass_per_length = pi*(d/2)**2 * density_tether
+    tether_length = cable_sag_calculator(tethermass_per_length, altitude, elevation_angle, F_t_max_horizontal)
+    tethermass = tethermass_per_length * tether_length
+    
+    
+    F_t_net = F_t_max - (glidermass*g_gravity*np.cos(elevation_angle)) - (tethermass*g_gravity) - (F_z*np.cos(elevation_angle))
+    
+    
+    tethermass_per_length_new = cable_dimensions_calculator(F_t_net, ultimate_tensile_strength, density_tether)[0]
+    tether_diameter_new = cable_dimensions_calculator(F_t_net, ultimate_tensile_strength, density_tether)[0] * 2
+    
+    d_diff = tether_diameter_new - d
+    d = tether_diameter_new
+    # return(F_t)
+
+#def pulling_force_in(rho, drag_coefficient, apparent_wind_speed_magnitude, wing_area):
+    
 
 def polarangle(elevation_angle):
     #Make sure the input elevation angle is in radians
@@ -85,6 +111,14 @@ def generator_power(tether_force, reelspeed):
     P_gen = tether_force * reelspeed
     #Still to be completed
     return(P_gen)
+
+def reel_out_effective_angle_of_attack(V_a):
+    V_a_x = V_a.item(0)
+    V_a_y = abs(V_a.item(1))
+    aoa = np.arctan2(V_a_x/V_a_y)
+    return(aoa)
+
+
 
 apparent_wind_speed_lst = []
 apparent_wind_speed_magnitude_lst = []
@@ -134,7 +168,9 @@ for reelspeed in reel_speed_array:
 
                 if isnan(Lambda)==False:
                     magnitude_apparent_wind_speed = apparent_wind_speed_magnitude(apparent_wind_speed_cartesian)
-                    tether_force = total_glider_pulling_force(air_density, lift_coefficient, drag_coefficient, magnitude_apparent_wind_speed, wing_area)
+                    total_lift = total_glider_pulling_force(air_density, lift_coefficient, drag_coefficient, magnitude_apparent_wind_speed, wing_area)
+                    
+                    
                     
                     
                     apparent_wind_speed_lst.append(apparent_wind_speed_cartesian)
@@ -145,8 +181,8 @@ for reelspeed in reel_speed_array:
                     azimuth_angle_lst.append(azimuth_angle)
                     Lambda_lst.append(Lambda)
                     V_w_lst.append(windspeed)
-                    tether_force_lst.append(tether_force)
-                    generator_power_lst.append(generator_power(tether_force, reelspeed))
+                    #tether_force_lst.append(tether_force)
+                    #generator_power_lst.append(generator_power(tether_force, reelspeed))
                     reel_factor_lst.append(reel_factor)
                     
                     if magnitude_apparent_wind_speed > max_apparent_wind_speed_magnitude:
@@ -154,10 +190,11 @@ for reelspeed in reel_speed_array:
                         corresponding_altitude = altitude
                         corresponding_reel_speed = reelspeed
                         corresponding_wind_speed = windspeed
-                        corresponding_tether_force = tether_force
-                        corresponding_generator_power = generator_power(tether_force, reelspeed)
+                        #corresponding_tether_force = tether_force
+                        #corresponding_generator_power = generator_power(tether_force, reelspeed)
                         corresponding_beta = operation_angle
                         corresponding_apparent_wind_speed = apparent_wind_speed_cartesian
+                        corresponding_apparent_wind_speed_spherical = apparent_wind_speed_spherical
                         
             
         else:
