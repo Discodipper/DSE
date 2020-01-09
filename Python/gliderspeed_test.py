@@ -92,14 +92,13 @@ def force_z_direction(apparent_wind_speed_cartesian, air_density, wing_area, dra
 
 def net_tether_force(V_a, air_density, lift_coefficient, drag_coefficient, wing_area, elevation_angle, V_a_z, glidermass, g_gravity, elevation_angle, F_z):
     F_t_net = tether_force_max(V_a, air_density, lift_coefficient, drag_coefficient, wing_area, elevation_angle, V_a_z) - (glidermass*g_gravity*np.cos(elevation_angle)) - (tethermass*g_gravity) - (F_z*np.cos(elevation_angle))
-    return(F_t_net)
+    F_t_net_z = F_t_net * np.sin(elevation_angle)
+    return(F_t_net, F_t_net_z)
 
-def tether_mass_new(F_t_net, ultimate_tensile_strength, density_tether):
-    tethermass_per_length_new = cable_dimensions_calculator(F_t_net, ultimate_tensile_strength, density_tether)[0]
-    tether_length = cable_sag_calculator(tethermass_per_length, altitude, elevation_angle, F_t_max_horizontal)
-    tether_diameter_new = cable_dimensions_calculator(F_t_net, ultimate_tensile_strength, density_tether)[0] * 2
-    m_tether_new = tethermass_per_length_new * tether_length
-    return(m_tether_new)
+def tether_diameter_new(F_t_net_z, ultimate_tensile_strength, density_tether):
+    tethermass_per_length_new = cable_dimensions_calculator(F_t_net_z, ultimate_tensile_strength, density_tether)[0]
+    tether_diameter_new = cable_dimensions_calculator(F_t_net_z, ultimate_tensile_strength, density_tether)[1] * 2
+    return(tether_diameter_new)
 
 def total_glider_pulling_force(rho, lift_coefficient, drag_coefficient, V_a_cartesian, wing_area, glidermass, tether_diameter, g_gravity, elevation_angle, ultimate_tensile_strength, density_tether):
     d = tether_diameter
