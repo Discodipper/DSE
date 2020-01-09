@@ -195,8 +195,9 @@ for reelspeed in reel_speed_array:
                     
                     tether_diameter_initial_guess = 0.07 #m
                     total_tether_force, total_tether_force_horizontal = tether_force_max(V_a, air_density, lift_coefficient, drag_coefficient, wing_area, operation_angle, V_a_z)
-                    
-                    
+                    force_in_z = force_z_direction(magnitude_apparent_wind_speed, air_density, wing_area, drag_coefficient)
+                    tether_mass_guess_value = tether_mass_guess(tether_diameter_initial_guess, tether_density, altitude, operation_angle, force_in_z)
+                    tether_force_net = net_tether_force(magnitude_apparent_wind_speed, air_density, lift_coefficient, drag_coefficient, wing_area, operation_angle)
                     
                     
                     
