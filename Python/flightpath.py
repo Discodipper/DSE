@@ -56,9 +56,17 @@ for flight_radius in flight_radius_array:
         mass_area_lst.append(mass_area)
     
     
+    
+# =============================================================================
+#     plt.plot(mass_area_lst,power_lst)
+#     plt.plot(mass_area_lst,normalised_power_lst)
+#plt.show()
+# =============================================================================
+   # plt.figure(1)
+    plt.subplot(211)
     plt.plot(mass_area_lst,power_lst)
+    plt.subplot(212)
     plt.plot(mass_area_lst,normalised_power_lst)
-plt.show()
 
 
 

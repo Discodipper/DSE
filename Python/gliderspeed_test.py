@@ -116,7 +116,6 @@ corresponding_generator_power = 0
 
 
 
-
 operation_angle_fail_lst = []
 azimuth_angle_fail_lst = []
 for reelspeed in reel_speed_array:
