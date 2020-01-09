@@ -98,6 +98,8 @@ def total_glider_pulling_force(rho, lift_coefficient, drag_coefficient, V_a_cart
     d_diff = tether_diameter_new - d
     d = tether_diameter_new
     # return(F_t)
+    
+
 
 #def pulling_force_in(rho, drag_coefficient, apparent_wind_speed_magnitude, wing_area):
     
@@ -168,7 +170,13 @@ for reelspeed in reel_speed_array:
 
                 if isnan(Lambda)==False:
                     magnitude_apparent_wind_speed = apparent_wind_speed_magnitude(apparent_wind_speed_cartesian)
-                    total_lift = total_glider_pulling_force(air_density, lift_coefficient, drag_coefficient, magnitude_apparent_wind_speed, wing_area)
+                    V_a_z = apparent_wind_speed_cartesian.item(2)
+                    
+                    
+                    tether_diameter_initial_guess = 0.07 #m
+                    total_tether_force, total_tether_force_horizontal = tether_force_max(V_a, air_density, lift_coefficient, drag_coefficient, wing_area, operation_angle, V_a_z)
+                    
+                    
                     
                     
                     
