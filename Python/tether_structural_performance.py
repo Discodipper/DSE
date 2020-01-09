@@ -127,9 +127,6 @@ def cable_dimensions_calculator(tension_force_cable, ultimate_tensile_strength, 
 m_tether_per_length, r_radius_cable = cable_dimensions_calculator(lift_force,ultimate_strength, material_density) #[kg/m], [m]
 d_diameter_cable_mm = 2*r_radius_cable*1000 #[mm]
 
-C_length_sag_cable = cable_sag_calculator(m_tether_per_length,h_operating_altitude,theta_altitude_angle_deg, H_horizontal_tension_force)
-
-
 
 # Calculate sag properties of tether:
 
