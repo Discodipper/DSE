@@ -24,7 +24,7 @@ g_gravity = 9.80665 #[m/s2]
 
 #Banana fibre: ultimate_strength = 790*10**6; material_density = 1300 # kg/m3
 lift_force = 30000
-ultimate_strength = 1500*10**6 # yield or ultimate stress
+ultimate_strength = 790*10**9 # yield or ultimate stress
 material_density = 900 # kg/m3
 #E_youngs_modulus = 26*10**9
 
