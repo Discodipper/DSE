@@ -23,8 +23,9 @@ altitude_array = np.arange(2675, 2700, 25)
 beta = (np.arange(88, 90, 2))*pi/180 #rad
 #phi = (np.arange(0, 95, 5))*pi/180 #rad
 azimuth_angle = 0 #rad
-hi = 90*pi/180 #rad
+hi = 270*pi/180 #rad
 g_gravity = 9.80665
+radius_flight_path = 100 #m
 
 drag_coefficient = 0.2
 lift_coefficient = 2.0
@@ -120,7 +121,12 @@ def reel_out_effective_angle_of_attack(V_a):
     aoa = np.arctan2(V_a_x/V_a_y)
     return(aoa)
 
-
+def added_velocity_z_direction(hi, elevation_angle, radius_flight_path, g_gravity):
+    if np.sin(hi) == 0:
+        added_velocity = 0
+    else:
+        added_velocity = np.sqrt(2 * g_gravity * radius_flight_path * abs(np.sin(hi)) * np.cos(elevation_angle)) * -(np.sin(hi) / abs(np.sin(hi)))
+    return(added_velocity)
 
 apparent_wind_speed_lst = []
 apparent_wind_speed_magnitude_lst = []
@@ -164,7 +170,7 @@ for reelspeed in reel_speed_array:
         for operation_angle in beta:
             temperature, pressure, air_density, windspeed = isa(altitude)
             reel_factor = reeling_factor(reelspeed, windspeed)
-            polar_angle = operational_angle#polarangle(operation_angle) #rad
+            polar_angle = polarangle(operation_angle) #rad
             
             
             if max_elevation_angle(glide_ratio, reel_factor) <= operation_angle and azimuth_constraint(polar_angle, azimuth_angle, glide_ratio, reel_factor):
@@ -172,7 +178,8 @@ for reelspeed in reel_speed_array:
                 Lambda = tangential_velocity_factor(polar_angle, azimuth_angle, hi, glide_ratio, reel_factor)[0]
                 
                 apparent_wind_speed_spherical, apparent_wind_speed_cartesian = apparent_wind_speed_values(windspeed, reelspeed, Lambda, polar_angle, azimuth_angle, hi)
-
+                apparent_wind_speed_cartesian[2] = apparent_wind_speed_cartesian[2] + added_velocity_z_direction(hi, operation_angle, radius_flight_path, g_gravity)
+                
                 if isnan(Lambda)==False:
                     
                     magnitude_apparent_wind_speed = apparent_wind_speed_magnitude(apparent_wind_speed_cartesian)
