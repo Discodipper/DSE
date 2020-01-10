@@ -91,9 +91,13 @@ def force_z_direction(V_a_z, air_density, wing_area, drag_coefficient):
     return(F_z)
 
 def net_tether_force(V_a, air_density, lift_coefficient, drag_coefficient, wing_area, elevation_angle, V_a_z, glidermass, g_gravity, F_z, tethermass):
-    F_t_net = tether_force_max(V_a, air_density, lift_coefficient, drag_coefficient, wing_area, elevation_angle) - (glidermass*g_gravity*np.cos(elevation_angle)) - (tethermass*g_gravity) - (F_z*np.cos(elevation_angle))
+    F_t_net = tether_force_max(V_a, air_density, lift_coefficient, drag_coefficient, wing_area, elevation_angle)[0] - (glidermass*g_gravity*np.cos(elevation_angle)) - (tethermass*g_gravity) - (F_z*np.cos(elevation_angle))
+    #F_t_net_z = F_t_net * np.sin(elevation_angle)
+    return(F_t_net)#, F_t_net_z)
+
+def net_tether_force_z(F_t_net, elevation_angle):
     F_t_net_z = F_t_net * np.sin(elevation_angle)
-    return(F_t_net, F_t_net_z)
+    return(F_t_net_z)
 
 def tether_diameter_new(F_t_net_z, ultimate_tensile_strength, density_tether):
     tethermass_per_length_new = cable_dimensions_calculator(F_t_net_z, ultimate_tensile_strength, density_tether)[0]
@@ -147,6 +151,10 @@ corresponding_tether_force = 0
 corresponding_generator_power = 0
 d_tether = 0
 
+tether_guess_lst = []
+tether_needed_lst = []
+tether_diff_lst = []
+count_lst = []
 
 
 operation_angle_fail_lst = []
@@ -169,19 +177,21 @@ for reelspeed in reel_speed_array:
                     
                     magnitude_apparent_wind_speed = apparent_wind_speed_magnitude(apparent_wind_speed_cartesian)
                     V_a_z = apparent_wind_speed_cartesian.item(2)
-                    tether_diameter_initial_guess = 0.01 #m
+                    tether_diameter_initial_guess = 0.07 #m
                     tether_diameter_difference = 1
                     ultimate_tensile_strength = 790*10**9 # yield or ultimate stress
                     tether_density = 900 # kg/m3
                     glidermass = 3800 #kg
-                    
+                    count = 0
                     while np.all(tether_diameter_difference) > 0.01:
                         total_tether_force, total_tether_force_horizontal = tether_force_max(magnitude_apparent_wind_speed, air_density, lift_coefficient, drag_coefficient, wing_area, operation_angle)
                         F_z = force_z_direction(V_a_z, air_density, wing_area, drag_coefficient)
                         tether_mass_guess_value = tether_mass_guess(tether_diameter_initial_guess, tether_density, altitude, operation_angle*180/np.pi, total_tether_force_horizontal)
                         
-                        tether_force_net, tether_force_net_z = net_tether_force(magnitude_apparent_wind_speed, air_density, lift_coefficient, drag_coefficient, wing_area, operation_angle, V_a_z, glidermass, g_gravity, F_z, tether_mass_guess_value)
-                        
+                        tether_force_net = net_tether_force(magnitude_apparent_wind_speed, air_density, lift_coefficient, drag_coefficient, wing_area, operation_angle, V_a_z, glidermass, g_gravity, F_z, tether_mass_guess_value)
+                        tether_force_net_z = net_tether_force_z(tether_force_net, operation_angle)
+
+
                         
                         tether_diameter_needed = tether_diameter_new(tether_force_net_z, ultimate_tensile_strength, tether_density)
                         tether_diameter_difference_absolute = abs(tether_diameter_initial_guess - tether_diameter_needed)
@@ -189,9 +199,16 @@ for reelspeed in reel_speed_array:
                         print("d_guess = ", tether_diameter_initial_guess)
                         tether_diameter_initial_guess = tether_diameter_needed
                         print("diff = ", tether_diameter_difference_absolute)
-                        
                         print("d_needed = ", tether_diameter_needed)
+                        count = count + 1
+                        
+                        tether_guess_lst.append(tether_diameter_initial_guess)
+                        tether_needed_lst.append(tether_diameter_needed)
+                        tether_diff_lst.append(tether_diameter_difference_absolute)
+                        count_lst.append(count)
                     
+                    plt.scatter(count_lst, tether_guess_lst, tether_needed_lst, tether_diff_lst)
+                    plt.show()
                     
                     apparent_wind_speed_lst.append(apparent_wind_speed_cartesian)
                     apparent_wind_speed_magnitude_lst.append(apparent_wind_speed_magnitude)
