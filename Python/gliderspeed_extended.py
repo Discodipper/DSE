@@ -15,13 +15,16 @@ import scipy.linalg as la
 start = time.time()
 
 reel_speed_array = np.arange(3, 16, 1) #m/s
+reel_speed_in_array = np.arange(1,11,1) #m/s
 altitude_array = np.arange(2000, 3025, 25)
 
 """theta is polar angle, phi is azimuth angle, beta is elevation angle (operation angle)."""
 beta = (np.arange(20, 90, 2))*pi/180 #rad
-phi = (np.arange(0, 95, 5))*pi/180 #rad
-#azimuth_angle = 0 #rad
+# phi = 0(np.arange(0, 95, 5))*pi/180 #rad
+azimuth_angle = 0 #rad
 hi = 180*pi/180 #rad
+delta_tether_length = 800 #m
+
 
 
 drag_coefficient = 0.2
@@ -55,10 +58,6 @@ def resultant_force_coefficient(lift_coefficient, drag_coefficient):
     C_R = np.sqrt(lift_coefficient**2 + drag_coefficient**2)
     return(C_R)
 
-def max_elevation_angle(glide_ratio, reel_factor):
-    beta_max = np.arccos((reel_factor*glide_ratio**2 + np.sqrt(1 + glide_ratio**2 * (1-reel_factor**2)))/(1 + glide_ratio**2))
-    return(beta_max)
-
 apparent_wind_speed_lst = []
 apparent_wind_speed_magnitude_lst = []
 reelspeed_lst = []
@@ -76,20 +75,27 @@ V_w_lst = []
 generator_power_lst = []
 tether_force_lst = []
 reel_factor_lst = []
+net_cycle_power_lst = []
+net_cycle_energy_lst = []
+cycle_duration_lst = []
 
 operation_angle_fail_lst = []
 azimuth_angle_fail_lst = []
 for reelspeed in reel_speed_array:
     for altitude in altitude_array:
         for operation_angle in beta:
-            for azimuth_angle in phi:
+            for reel_speed_in in reel_speed_in_array:
                 temperature, pressure, air_density, windspeed = isa(altitude)
-                reel_factor = reeling_factor(reelspeed, windspeed)
                 polar_angle = (pi/2) - operation_angle #rad
+                dynamic_wind_pressure =  0.5 * air_density * windspeed**2
+                wind_power_density = 0.5 * air_density * windspeed**3 
+                              
+                apparent_windspeed_in = reel_speed_in - np.cos(operation_angle) * windspeed
+                tether_force_retraction = 0.5 * air_density * apparent_windspeed_in**2 * drag_coefficient * wing_area
                 
                 
-                if max_elevation_angle(glide_ratio, reel_factor) <= operation_angle and azimuth_constraint(polar_angle, azimuth_angle, glide_ratio, reel_factor):
-                    
+                reel_factor = reeling_factor(reelspeed, windspeed)
+                if azimuth_constraint(polar_angle, azimuth_angle, glide_ratio, reel_factor) < 0:
                     Lambda = tangential_velocity_factor(polar_angle, azimuth_angle, hi, glide_ratio, reel_factor)[0]
                     A = tangential_velocity_factor(polar_angle, azimuth_angle, hi, glide_ratio, reel_factor)[1]
                     B = tangential_velocity_factor(polar_angle, azimuth_angle, hi, glide_ratio, reel_factor)[2]
@@ -107,8 +113,14 @@ for reelspeed in reel_speed_array:
     
                     if isnan(Lambda)==False:
                         apparent_wind_speed_magnitude = la.norm(np.array(apparent_wind_speed_cartesian))
-                        tether_force = 0.5*air_density*resultant_force_coefficient(lift_coefficient, drag_coefficient) * apparent_wind_speed_magnitude * wing_area
+                        tether_force = 0.5*air_density*resultant_force_coefficient(lift_coefficient, drag_coefficient) * apparent_wind_speed_magnitude**2 * wing_area
                         generator_power = tether_force * reelspeed
+                        normalised_tether_force = tether_force / dynamic_wind_pressure / wing_area
+                        power_harvesting_factor = normalised_tether_force * reel_factor
+                        
+                        cycle_duration = delta_tether_length / reelspeed + delta_tether_length / reel_speed_in
+                        net_cycle_energy = (tether_force - tether_force_retraction) * delta_tether_length
+                        net_cycle_power = net_cycle_energy / cycle_duration
                         
                         
                         apparent_wind_speed_lst.append(apparent_wind_speed_cartesian)
@@ -128,27 +140,31 @@ for reelspeed in reel_speed_array:
                         tether_force_lst.append(tether_force)
                         generator_power_lst.append(generator_power)
                         reel_factor_lst.append(reel_factor)
-                        
+                        if net_cycle_power > 3376834:
+                            print(reelspeed, reel_speed_in, tether_force, operation_angle, windspeed)
+                         
+                        net_cycle_energy_lst.append(net_cycle_energy)
+                        cycle_duration_lst.append(cycle_duration)
                 
             else:
                 operation_angle_fail_lst.append(operation_angle)
                 azimuth_angle_fail_lst.append(azimuth_angle)
-                    
+                        
+            
 
 
 
 
-
-print("V_a = ", apparent_wind_speed_lst[7149])
-print("magnitude of V_a = ", apparent_wind_speed_magnitude_lst[7149])
-print("alitutude = ", altitude_lst[7149])
-print("Theta = ", 90 - (operation_angle_lst[7149])*180/pi)
-print("phi = ", azimuth_angle_lst[7149]*180/pi)
-print("V_reel = ", reelspeed_lst[7149])
-print("lambda = ", Lambda_lst[7149])
-print("reel factor f = ", reel_factor_lst[7149])
-print("tether force = ", tether_force_lst[7149])
-print("generator power = ", generator_power_lst[7149])
+print("V_a = ", apparent_wind_speed_lst[2769])
+print("magnitude of V_a = ", apparent_wind_speed_magnitude_lst[2769])
+print("alitutude = ", altitude_lst[2769])
+print("Theta = ", 90 - (operation_angle_lst[2769])*180/pi)
+print("phi = ", azimuth_angle_lst[2769]*180/pi)
+print("V_reel = ", reelspeed_lst[2769])
+print("lambda = ", Lambda_lst[2769])
+print("reel factor f = ", reel_factor_lst[2769])
+print("tether force = ", tether_force_lst[2769])
+print("generator power = ", generator_power_lst[2769])
 # print("a = ", a_lst[110])
 # print("b = ", b_lst[110])
 # print("wind component = ", wind_component_lst[110])
@@ -156,7 +172,7 @@ print("generator power = ", generator_power_lst[7149])
 # print("kite tangential compoent = ", kite_tangential_component_lst[110])
 
 
-
+#qqq = sum(net_cycle_power_lst)/len(net_cycle_power_lst)
                     
                 
     

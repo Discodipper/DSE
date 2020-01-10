@@ -9,13 +9,15 @@ Created on Thu Dec 19 11:57:40 2019
 # imports
 from ISA_calculator import isa
 from numpy import tan, pi, arange, sin, cos
+from tether_structural_performance import cable_dimensions_calculator
 
 # drag of cables underneath 'Y'-connection calculators
 def drag_stationary_part_tether_reeled_in(horizontal_distance_tether_2): #in Xw direction
     # test inputs
-    diameter_tether_2 = .008 #m # from Caro and TA
-    phi = 25 #degree # from Pranav and Xander
-    
+
+    diameter_tether_2 = 2*cable_dimensions_calculator(30000,48*10**6,970)[1]
+    phi = 0 #degree # from Pranav and Xander
+
     # inputs
     Cd = 1 #median of Schmel
     mesh_length_2 = .100 #mesh length in x direction
@@ -25,20 +27,19 @@ def drag_stationary_part_tether_reeled_in(horizontal_distance_tether_2): #in Xw 
     
     for x in arange(0,horizontal_distance_tether_2+mesh_length_2,mesh_length_2):
         h = x*tan(operation_angle/180*pi) # from Caro and TA
-        Drag_tether_2_segment = .5*Cd*isa(h)[2]*isa(h)[3]**2*diameter_tether_2*mesh_length_2*sin(phi/180*pi) #worst case scenario
+        Drag_tether_2_segment = .5*Cd*isa(h)[2]*isa(h)[3]**2*diameter_tether_2*mesh_length_2*sin(operation_angle/180*pi) #worst case scenario
         Drag_tether_2.append(Drag_tether_2_segment)
         
     return(sum(Drag_tether_2))
 
 def drag_stationary_part_tether_reeled_out(horizontal_distance_tether_1,horizontal_distance_tether_2): #in Xw direction
     # test inputs
-    diameter_tether_1 = .016 #m # from Caro and TA
-    diameter_tether_2 = .008 #m # from Caro and TA
-    phi = 25 #degree # from Pranav and Xander
+    diameter_tether_1 = 2*cable_dimensions_calculator(30000,48*10**6,970)[1] #m # from Caro and TA
+    diameter_tether_2 = 2*cable_dimensions_calculator(30000,48*10**6,970)[1] #m # from Caro and TA
     
     # inputs
     Cd = 1 #median of Schmel
-    mesh_length_1 = .100
+    mesh_length_1 = 10
     mesh_length_2 = .100
     
     operation_angle = 25 #degree # output from Xander and Pranav
@@ -48,12 +49,12 @@ def drag_stationary_part_tether_reeled_out(horizontal_distance_tether_1,horizont
     
     for x in arange(0,horizontal_distance_tether_1+mesh_length_1,mesh_length_1):
         h = x*tan(operation_angle/180*pi) # from Caro and TA
-        Drag_tether_1_segment = .5*Cd*isa(h)[2]*isa(h)[3]**2*diameter_tether_1*mesh_length_1*sin(phi/180*pi)
+        Drag_tether_1_segment = .5*Cd*isa(h)[2]*isa(h)[3]**2*diameter_tether_1*mesh_length_1*sin(operation_angle/180*pi)
         Drag_tether_1.append(Drag_tether_1_segment)
     
     for x in arange(horizontal_distance_tether_1,horizontal_distance_tether_2+mesh_length_2,mesh_length_2):
         h = x*tan(operation_angle/180*pi) # from Caro and TA
-        Drag_tether_2_segment = .5*Cd*isa(h)[2]*isa(h)[3]**2*diameter_tether_2*mesh_length_2*sin(phi/180*pi)
+        Drag_tether_2_segment = .5*Cd*isa(h)[2]*isa(h)[3]**2*diameter_tether_2*mesh_length_2*sin(operation_angle/180*pi)
         Drag_tether_2.append(Drag_tether_2_segment)
         
     return(sum(Drag_tether_1)+sum(Drag_tether_2))
