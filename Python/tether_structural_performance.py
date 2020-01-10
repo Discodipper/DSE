@@ -110,10 +110,13 @@ def cable_coordinates_calculator(L_horizontal_operating_distance, H_horizontal_t
 ###
 def cable_dimensions_calculator(tension_force_cable, ultimate_tensile_strength, density_tether):   
     safety_factor = 5
-    A_crosssectional_area_cable = safety_factor*tension_force_cable/ultimate_tensile_strength #[m^2]
-    r_radius_cable = np.sqrt(A_crosssectional_area_cable/np.pi) #[m]
-    
-    m_tether_per_length = density_tether*A_crosssectional_area_cable #[kg/m]
+#    A_crosssectional_area_cable = safety_factor*tension_force_cable/ultimate_tensile_strength #[m^2]
+#    r_radius_cable = np.sqrt(A_crosssectional_area_cable/np.pi) #[m]
+    pure_fibre_area = safety_factor*tension_force_cable/ultimate_tensile_strength #[m^2]
+    m_tether_per_length = density_tether*pure_fibre_area*(1 + pure_fibre_area/0.0005037987746501848) #[kg/m]
+    rope_area = m_tether_per_length/density_tether #[m^2]
+#    m_tether_per_length = density_tether*A_crosssectional_area_cable #[kg/m]
+    r_radius_cable = np.sqrt(rope_area/np.pi)
     return m_tether_per_length, r_radius_cable;
 ###
 
