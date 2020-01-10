@@ -1,10 +1,11 @@
 import math as m
+from numpy import array as a
 g = 9.80665
-sweep_angle_deg = 1 # degrees at LE 
+sweep_angle_deg = 0 # degrees at LE 
 sweep_angle_rad = (1*m.pi)/180 # sweep angle at LE in radians
 taper_ratio = 0.4 # to make lift distribution elliptical 
-aspect_ratio = 12 # [-] from adsee slides on aspect ratio 
-wing_area = 60 # m^2
+aspect_ratio = 18 # [-] from adsee slides on aspect ratio 
+wing_area = 100 # m^2
 wing_span = m.sqrt(wing_area * aspect_ratio) # [m]
 wing_span_half = wing_span*0.5 #[m]
 chord_root = wing_area/(wing_span*0.7) # [m]   
@@ -12,7 +13,7 @@ chord_tip = taper_ratio * chord_root # [m]
 chord_mean_aerodynamic = (2/3)*chord_root * ((1+taper_ratio + \
 taper_ratio**2)/(1+taper_ratio)) # [m]
 mean_aerodynamic_y = (wing_span/6) * ((1+2*taper_ratio)/(1+taper_ratio)) # [m] # taken from middle 
-mean_aerodynamic_x = mean_aerodynamic_y * m.tan(sweep_angle_rad) # [m] TAKEN FROM WHERE?????
+mean_aerodynamic_x = mean_aerodynamic_y * m.tan(sweep_angle_rad) # [m] position of start MAC taken from leading edge wing 
 quarter_chord_line_angle_rad = m.atan(m.tan(sweep_angle_rad) + (chord_root/(2*wing_span)) * (taper_ratio-1))
 aspect_ratio_limit = 17.7 * (2-taper_ratio) * m.exp(-0.043 * quarter_chord_line_angle_rad) #maximum AR dependent on variables in formula
 
@@ -49,12 +50,7 @@ oswald = 1.78*(1-0.045*aspect_ratio**0.68) - 0.64
 
 CD0 = 0.01 #Lord Dylan
 
-lift_coefficient = 18*(1/q)*(W_glider/wing_area)
-CD = CD0 + (lift_coefficient**2/(m.pi*aspect_ratio*oswald))
-lift_over_drag_ratio = lift_coefficient/CD
+ac_from_LE = 0.25*chord_mean_aerodynamic+mean_aerodynamic_x #aerodynamic center position taken from leading edge wing at root y-position (XFLR5)
 
-
-
-
-
-
+#SUBJECT TO CHANGE WITH WORK FROM ERIK JAN:
+gjhkn = 3/wing_span_half
