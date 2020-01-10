@@ -26,6 +26,7 @@ center_of_gravity_wing = 0.42 * length_fuselage # [m]
 
 #------------------------------------------- WEIGHTS ----------------------------------------------------
 W_glider = ratio_from_dylan * 6885.2 *g # [N] 
+m_glider = W_glider/9.80665 # [kg]
 W_tail = 0.08*W_glider# [N]
 W_wing = 0.50*W_glider # [N]
 W_wheels_nose = 0.02*W_glider # [N] # Weight of entire nose wheels 
