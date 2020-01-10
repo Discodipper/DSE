@@ -16,11 +16,11 @@ from flight_dynamics_tether_weight import cable_sag_calculator
 import scipy.linalg as la
 start = time.time()
 
-reel_speed_array = np.arange(3, 16, 1) #m/s
-altitude_array = np.arange(2000, 3025, 25)
+reel_speed_array = np.arange(11, 12, 1) #m/s
+altitude_array = np.arange(2675, 2700, 25)
 
 """theta is polar angle, phi is azimuth angle, beta is elevation angle (operation angle)."""
-beta = (np.arange(20, 90, 2))*pi/180 #rad
+beta = (np.arange(88, 90, 2))*pi/180 #rad
 #phi = (np.arange(0, 95, 5))*pi/180 #rad
 azimuth_angle = 0 #rad
 hi = 270*pi/180 #rad
@@ -175,7 +175,7 @@ for reelspeed in reel_speed_array:
                     tether_density = 900 # kg/m3
                     glidermass = 3800 #kg
                     
-                    while np.all(tether_diameter_difference) > 0.0005:
+                    while np.all(tether_diameter_difference) > 0.01:
                         total_tether_force, total_tether_force_horizontal = tether_force_max(magnitude_apparent_wind_speed, air_density, lift_coefficient, drag_coefficient, wing_area, operation_angle)
                         F_z = force_z_direction(V_a_z, air_density, wing_area, drag_coefficient)
                         tether_mass_guess_value = tether_mass_guess(tether_diameter_initial_guess, tether_density, altitude, operation_angle, total_tether_force_horizontal)
@@ -187,6 +187,8 @@ for reelspeed in reel_speed_array:
                         tether_diameter_difference_absolute = abs(tether_diameter_initial_guess - tether_diameter_needed)
                         tether_diameter_difference = tether_diameter_difference_absolute
                         tether_diameter_initial_guess = tether_diameter_needed
+                    print("diff = ", tether_diameter_difference_absolute)
+                    print(tether_diameter_initial_guess, tether_diameter_needed)
                     
                     
                     apparent_wind_speed_lst.append(apparent_wind_speed_cartesian)
