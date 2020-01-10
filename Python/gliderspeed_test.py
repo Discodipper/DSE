@@ -157,7 +157,7 @@ tether_diff_lst = []
 count_lst = []
 
 
-operation_angle_fail_lst = []
+oeration_angle_fail_lst = []
 azimuth_angle_fail_lst = []
 for reelspeed in reel_speed_array:
     for altitude in altitude_array:
