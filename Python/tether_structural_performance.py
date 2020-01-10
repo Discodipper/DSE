@@ -67,7 +67,12 @@ def cable_sag_calculator(m_tether_per_length,h_operating_altitude,theta_altitude
     #print('straight cable length', L_star_tether_chord_length, 'm')
     #print('percentage difference = ', (C_length_sag_cable-L_star_tether_chord_length)/L_star_tether_chord_length*100, '%')
     
-    return C_length_sag_cable, theta_tension_angle_glider, theta_tension_angle_ground, sag;    
+    #print('total cable length', C_length_sag_cable, 'm')
+    #print('straight cable length', L_star_tether_chord_length, 'm')
+    #print('percentage difference = ', (C_length_sag_cable-L_star_tether_chord_length)/L_star_tether_chord_length*100, '%')
+    
+    return(C_length_sag_cable)   
+
 ###        
 
 
@@ -77,12 +82,20 @@ def cable_angle_calculator(K1_sag_constant, w_tether_per_length, L_horizontal_op
     theta_tension_angle_ground = np.arctan(np.sinh(K1_sag_constant))
     theta_tension_angle_glider = np.arctan(np.sinh(w_tether_per_length*L_horizontal_operating_distance/H_horizontal_tension_force+K1_sag_constant))
     
+
+    print('glider rope angle = ', theta_tension_angle_glider*180/np.pi, 'degrees')
+    if theta_tension_angle_ground < 0:
+        print('ERROR, tether touches ground, theta =', theta_tension_angle_ground*np.pi/180, 'degrees')
+    else:
+        print('Phew, we are OK, theta=', theta_tension_angle_ground*180/np.pi, 'degrees')
+    return(theta_tension_angle_glider, theta_tension_angle_ground)
     #print('glider rope angle = ', theta_tension_angle_glider*180/np.pi, 'degrees')
     #if theta_tension_angle_ground < 0:
     #    print('ERROR, tether touches ground, theta =', theta_tension_angle_ground*np.pi/180, 'degrees')
     #else:
     #    print('Phew, we are OK, theta=', theta_tension_angle_ground*180/np.pi, 'degrees')
     return theta_tension_angle_glider, theta_tension_angle_ground;
+
 ###
 
 ###
@@ -103,18 +116,23 @@ def cable_coordinates_calculator(L_horizontal_operating_distance, H_horizontal_t
     plt.xlim(0, L_horizontal_operating_distance+0.1*L_horizontal_operating_distance)
     plt.gca().set_aspect('equal', adjustable='box')
     
+    return(x_cable_coordinate, y_cable_coordinate)
+
     sag = max(np.subtract(y_chord_coordinate,y_cable_coordinate))
     return sag, x_cable_coordinate, y_cable_coordinate
-###
 
-###
 def cable_dimensions_calculator(tension_force_cable, ultimate_tensile_strength, density_tether):   
     safety_factor = 5
     A_crosssectional_area_cable = safety_factor*tension_force_cable/ultimate_tensile_strength #[m^2]
     r_radius_cable = np.sqrt(A_crosssectional_area_cable/np.pi) #[m]
     
+
+    m_tether_per_length = density_tether*A_crosssectional_area_cable
+    return(m_tether_per_length, r_radius_cable)
+
     m_tether_per_length = density_tether*A_crosssectional_area_cable #[kg/m]
     return m_tether_per_length, r_radius_cable;
+
 ###
 
 ###
@@ -127,28 +145,29 @@ def cable_dimensions_calculator(tension_force_cable, ultimate_tensile_strength, 
 m_tether_per_length, r_radius_cable = cable_dimensions_calculator(lift_force,ultimate_strength, material_density) #[kg/m], [m]
 d_diameter_cable_mm = 2*r_radius_cable*1000 #[mm]
 
+
 # Calculate sag properties of tether:
 
-# Call functions in for loop for different angles between glider and ground (theta)
-# for the closest match between the angle of lift (theta1, theta1_ideal).
-for theta_altitude_angle_deg in np.arange(15.,theta1_ideal,0.2):
-    C_length_sag_cable, theta_tension_angle_glider, theta_tension_angle_ground, sag = cable_sag_calculator(m_tether_per_length,h_operating_altitude,theta_altitude_angle_deg, H_horizontal_tension_force)
-    theta.append(theta_altitude_angle_deg)
-    theta1.append(theta_tension_angle_glider*180/np.pi)
-    theta1comp.append(abs(theta_tension_angle_glider*180/np.pi-theta1_ideal))
-    theta0.append(theta_tension_angle_ground*180/np.pi)
-    sagged_cable_length.append(C_length_sag_cable)
-    sag_list.append(sag[0])
+# # Call functions in for loop for different angles between glider and ground (theta)
+# # for the closest match between the angle of lift (theta1, theta1_ideal).
+# for theta_altitude_angle_deg in np.arange(15.,theta1_ideal,0.2):
+#     C_length_sag_cable, theta_tension_angle_glider, theta_tension_angle_ground, sag = cable_sag_calculator(m_tether_per_length,h_operating_altitude,theta_altitude_angle_deg, H_horizontal_tension_force)
+#     theta.append(theta_altitude_angle_deg)
+#     theta1.append(theta_tension_angle_glider*180/np.pi)
+#     theta1comp.append(abs(theta_tension_angle_glider*180/np.pi-theta1_ideal))
+#     theta0.append(theta_tension_angle_ground*180/np.pi)
+#     sagged_cable_length.append(C_length_sag_cable)
+#     sag_list.append(sag[0])
 
     
-# Following are the final angles:    
-operating_angle_final = theta[theta1comp.index(min(theta1comp))]
-theta0_final = theta0[theta1comp.index(min(theta1comp))]
-sag_final = sag_list[theta1comp.index(min(theta1comp))]
+# # Following are the final angles:    
+# operating_angle_final = theta[theta1comp.index(min(theta1comp))]
+# theta0_final = theta0[theta1comp.index(min(theta1comp))]
+# sag_final = sag_list[theta1comp.index(min(theta1comp))]
 
-if theta0_final < 0:
-    print('Whoops, the cable will hit the ground, theta0 = ', theta0_final)
-theta_tension_angle_glider_final = theta1[theta1comp.index(min(theta1comp))]
+# if theta0_final < 0:
+#     print('Whoops, the cable will hit the ground, theta0 = ', theta0_final)
+# theta_tension_angle_glider_final = theta1[theta1comp.index(min(theta1comp))]
 
 
 # Plot the cable sag:
@@ -160,6 +179,4 @@ print('total mass tether =',total_mass_cable)
 total_tension_ground = H_horizontal_tension_force/np.cos(theta0_final*np.pi/180)
 print('total tesion force at ground =', total_tension_ground) 
 print('maximum sag = ', sag_final)   
-    
-    
-    
+
