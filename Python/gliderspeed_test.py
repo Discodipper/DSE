@@ -25,7 +25,7 @@ altitude_array = np.arange(2675, 2700, 25)
 beta = (np.arange(88, 90, 2))*pi/180 #rad
 #phi = (np.arange(0, 95, 5))*pi/180 #rad
 azimuth_angle = 0 #rad
-hi = 270*pi/180 #rad
+hi = 90*pi/180 #rad
 g_gravity = 9.80665
 radius_flight_path = 100 #m
 
@@ -215,7 +215,7 @@ for reelspeed in reel_speed_array:
                         #reduced_force_by_roll = reduced_lift_by_roll(corresponding_tether_force, roll_angle)[0]
                         reduced_force_by_roll = reduced_lift_by_roll(tether_force_net, roll_angle, total_mass, wing_area, air_density, lift_coefficient, radius_flight_path)[0]
                         final_generator_power = reduced_force_by_roll * reelspeed
-                        kite_speed = np.sqrt(apparent_wind_speed_cartesian.item(1)**2 * apparent_wind_speed_cartesian.item(2)**2)
+                        kite_speed = np.sqrt(apparent_wind_speed_cartesian.item(1)**2 + apparent_wind_speed_cartesian.item(2)**2)
                         final_flight_radius = flight_radius(roll_angle, reduced_force_by_roll, total_mass, kite_speed)
                         #apparent_wind_speed_cartesian[2] = apparent_wind_speed_cartesian[2] + added_velocity_z_direction(hi, operation_angle, final_flight_radius, g_gravity)
                         
