@@ -113,7 +113,7 @@ def cable_dimensions_calculator(tension_force_cable, ultimate_tensile_strength, 
 #    A_crosssectional_area_cable = safety_factor*tension_force_cable/ultimate_tensile_strength #[m^2]
 #    r_radius_cable = np.sqrt(A_crosssectional_area_cable/np.pi) #[m]
     pure_fibre_area = safety_factor*tension_force_cable/ultimate_tensile_strength #[m^2]
-    m_tether_per_length = density_tether*pure_fibre_area*(1 + pure_fibre_area*1432.0391714127) #[kg/m]
+    m_tether_per_length = density_tether*pure_fibre_area*2.8465052232865697 #[kg/m]
     rope_area = m_tether_per_length/density_tether #[m^2]
 #    m_tether_per_length = density_tether*A_crosssectional_area_cable #[kg/m]
     r_radius_cable = np.sqrt(rope_area/np.pi)
