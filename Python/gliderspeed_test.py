@@ -18,14 +18,14 @@ from flightpath import flight_radius
 import scipy.linalg as la
 start = time.time()
 
-reel_speed_array = np.arange(11, 12, 1) #m/s
+reel_factor_array = np.arange(0.1, 1, 0.1) #m/s
 altitude_array = np.arange(2675, 2700, 25)
 
 """theta is polar angle, phi is azimuth angle, beta is elevation angle (operation angle)."""
-beta = (np.arange(88, 90, 2))*pi/180 #rad
+beta = (np.arange(78, 80, 2))*pi/180 #rad
 #phi = (np.arange(0, 95, 5))*pi/180 #rad
-azimuth_angle = 0 #rad
-hi = 90*pi/180 #rad
+azimuth_angle = 0*np.pi/180 #rad
+hi = 0*pi/180 #rad
 g_gravity = 9.80665
 radius_flight_path = 100 #m
 
@@ -35,9 +35,9 @@ glide_ratio = lift_coefficient/drag_coefficient
 wing_area = 40 #m^2
 
 
-def reeling_factor(V_reel, V_wind):
-    f = V_reel/V_wind
-    return(f)
+def reel_speed(f, V_wind):
+    V_reel = V_wind * f
+    return(V_reel)
 
 def tangential_velocity_factor(theta, phi, hi, glide_ratio, f):
     a = np.cos(theta) * np.cos(phi) * np.cos(hi) - np.sin(phi)*np.sin(hi)
@@ -52,8 +52,9 @@ def azimuth_constraint(polar_angle, phi, glide_ratio, f):
     return(diff)
 
 def spherical_to_cartesian(x, theta, phi):
-    A = la.inv(np.matrix([[np.sin(theta) * np.cos(phi), np.sin(theta) * np.sin(phi), np.cos(theta)], [np.cos(theta) * np.cos(phi), np.cos(theta) * np.sin(phi), -np.sin(theta)], [-np.sin(phi), np.cos(phi), 0]]))
-    B = A*x
+    #A = la.inv(np.matrix([[np.sin(theta) * np.cos(phi), np.sin(theta) * np.sin(phi), np.cos(theta)], [np.cos(theta) * np.cos(phi), np.cos(theta) * np.sin(phi), -np.sin(theta)], [-np.sin(phi), np.cos(phi), 0]]))
+    A = np.matrix([[np.sin(theta) * np.cos(phi), np.cos(theta) * np.cos(phi), -np.sin(phi)], [np.sin(theta) * np.sin(phi), np.cos(theta) * np.sin(phi), np.cos(phi)], [np.cos(theta), -np.sin(theta), 0]])
+    B = np.dot(A, x)
     return(B)
 
 def resultant_force_coefficient(lift_coefficient, drag_coefficient):
@@ -162,6 +163,7 @@ corresponding_generator_power = 0
 corresponding_total_mass = 0
 
 d_tether = 0
+corresponding_reel_factor = 0
 
 tether_guess_lst = []
 tether_needed_lst = []
@@ -171,11 +173,13 @@ count_lst = []
 
 operation_angle_fail_lst = []
 azimuth_angle_fail_lst = []
-for reelspeed in reel_speed_array:
+for reel_factor in reel_factor_array:
     for altitude in altitude_array:
         for operation_angle in beta:
             temperature, pressure, air_density, windspeed = isa(altitude)
+            reelspeed = reel_speed(reel_factor, windspeed)
             reel_factor = reeling_factor(reelspeed, windspeed)
+
             polar_angle = polarangle(operation_angle) #rad
             
             
@@ -219,19 +223,19 @@ for reelspeed in reel_speed_array:
                         final_flight_radius = flight_radius(roll_angle, reduced_force_by_roll, total_mass, kite_speed)
                         #apparent_wind_speed_cartesian[2] = apparent_wind_speed_cartesian[2] + added_velocity_z_direction(hi, operation_angle, final_flight_radius, g_gravity)
                         
-                        tether_diameter_needed = tether_diameter_new(tether_force_net_z, ultimate_tensile_strength, tether_density)
-                        tether_diameter_difference_absolute = abs(tether_diameter_initial_guess - tether_diameter_needed)
-                        tether_diameter_difference = tether_diameter_difference_absolute
-                        #print("d_guess = ", tether_diameter_initial_guess)
-                        tether_diameter_initial_guess = tether_diameter_needed
-                        #print("diff = ", tether_diameter_difference_absolute)
-                        #print("d_needed = ", tether_diameter_needed)
-                        count = count + 1
+                    #     tether_diameter_needed = tether_diameter_new(tether_force_net_z, ultimate_tensile_strength, tether_density)
+                    #     tether_diameter_difference_absolute = abs(tether_diameter_initial_guess - tether_diameter_needed)
+                    #     tether_diameter_difference = tether_diameter_difference_absolute
+                    #     #print("d_guess = ", tether_diameter_initial_guess)
+                    #     tether_diameter_initial_guess = tether_diameter_needed
+                    #     #print("diff = ", tether_diameter_difference_absolute)
+                    #     #print("d_needed = ", tether_diameter_needed)
+                    #     count = count + 1
                         
-                        tether_guess_lst.append(tether_diameter_initial_guess)
-                        tether_needed_lst.append(tether_diameter_needed)
-                        tether_diff_lst.append(tether_diameter_difference_absolute)
-                        count_lst.append(count)
+                    #     tether_guess_lst.append(tether_diameter_initial_guess)
+                    #     tether_needed_lst.append(tether_diameter_needed)
+                    #     tether_diff_lst.append(tether_diameter_difference_absolute)
+                    #     count_lst.append(count)
                     
                     #plt.scatter(count_lst, tether_guess_lst, tether_needed_lst, tether_diff_lst)
                     #plt.show()
@@ -253,6 +257,7 @@ for reelspeed in reel_speed_array:
                         corresponding_altitude = altitude
                         corresponding_reel_speed = reelspeed
                         corresponding_wind_speed = windspeed
+                        corresponding_reel_factor = reel_factor
                         #corresponding_tether_force = tether_force
                         #corresponding_generator_power = generator_power(tether_force, reelspeed)
                         corresponding_beta = operation_angle
@@ -281,6 +286,7 @@ print("Maximum magnitude of V_a = ", max_apparent_wind_speed_magnitude)
 print("V_a vector = ", corresponding_apparent_wind_speed)
 print("alitutude = ", corresponding_altitude)
 print("V_reel = ", corresponding_reel_speed)
+print("f = ", corresponding_reel_factor)
 print("wind speed = ", corresponding_wind_speed)
 print("Elevation angle = ", corresponding_beta*180/pi)
 print("Tether force = ", corresponding_tether_force)
