@@ -5,7 +5,7 @@ Created on Wed Jan  8 11:15:24 2020
 @author: thoma
 """
 
-import scipy as sp
+import numpy as np
 import sys, os
 import matplotlib.pyplot as plt
 sys.path.clear()
@@ -13,14 +13,17 @@ sys.path.append(os.path.realpath('..\\wing'))
 sys.path.append(os.path.realpath('..\\Flight_Performance\\Shape\\weight_and_cg_estimation'))
 
 from shape_parameters import chord_tip, chord_root, wing_span_half, sweep_angle_rad
-file_name = 'MRevE-v2.dat'
+file_name = 'Peter 5.0.dat'
+file_name2 = 'MRevE-v2.dat'
 
 
 def retrieve_aerofoil_parameters(file_name):
     notepad = open(file_name, 'r')
     aerofoil_data = str.split(notepad.read())
     aerofoil_cross_section= []
-
+    notepad2 = open(file_name2, 'r')
+    aerofoil_data2 = str.split(notepad2.read())
+    aerofoil_cross_section2= []
 # =============================================================================
 #     #linear interpolation
 #     aerofoil_data_upper = aerofoil_data[:len(aerofoil_data)//2 -1]
@@ -44,9 +47,26 @@ def retrieve_aerofoil_parameters(file_name):
             'chord':float(aerofoil_data[i]),
             'camber':float(aerofoil_data[i + 1])
             }
-        aerofoil_cross_section= sp.append(aerofoil_cross_section, aerofoil_point)
-    #5plt.plot([step['chord'] for step in aerofoil_cross_section], [step['camber'] for step in aerofoil_cross_section])
-    #plt.axis('equal')
+        aerofoil_cross_section= np.append(aerofoil_cross_section, aerofoil_point)
+    for i in range (0, len(aerofoil_data2), 2):
+        aerofoil_point2 = {
+            'chord2':float(aerofoil_data2[i]),
+            'camber2':float(aerofoil_data2[i + 1])
+            }
+        aerofoil_cross_section2= np.append(aerofoil_cross_section2, aerofoil_point2)
+
+
+
+
+
+    p1 = plt.plot([step['chord'] for step in aerofoil_cross_section], [step['camber'] for step in aerofoil_cross_section], color = '#00a6d6')
+    p2 = plt.plot([step['chord2'] for step in aerofoil_cross_section2], [step['camber2'] for step in aerofoil_cross_section2],'--', color = 'red')
+    plt.xlabel('x/c [-]')
+    plt.ylabel('y/c [-]')
+    plt.grid(True)
+    plt.legend((p1[0],p2[0]), ('EHAC8431','MRevE-v2'))
+    plt.title('Airfoil diagram')
+    plt.axis('equal')
     
     #as read from the plot
     top_z_position_at_10_percent_chord = 0.142
@@ -64,12 +84,12 @@ def retrieve_aerofoil_parameters(file_name):
         'upper_camber_slope': top_z_position_at_70_percent_chord - top_z_position_at_10_percent_chord,
         'lower_camber_slope': low_z_position_at_70_percent_chord - low_z_position_at_10_percent_chord
         }
-    return z_positions
+    return wing_box_z_dimensional_properties
     
 
 def wing_box_width_calculator(y_position, chord_for_y_position):
     #track trailing edge and leading edge positions 
-    LE_x_position_for_y_position = y_position * - sp.sin(sweep_angle_rad)
+    LE_x_position_for_y_position = y_position * - np.sin(sweep_angle_rad)
     TE_x_position_for_y_position = LE_x_position_for_y_position - chord_for_y_position
 
     #consider high-lift devices and front spacing
@@ -107,7 +127,7 @@ def determine_wing_box_parameters(n_sections):
     y_positions = []
     for n in range(0, n_sections + 1) : 
         y_position = y_step_cross_section * n
-        y_positions = sp.append(y_positions, y_position)
+        y_positions = np.append(y_positions, y_position)
         chord_for_y_position = chord_root + chord_step_cross_section * n
         
         LE_wing_box_x_position, TE_wing_box_x_position, wing_box_x_distance = wing_box_width_calculator(y_position, chord_for_y_position)
