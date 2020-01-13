@@ -13,6 +13,8 @@ import time
 from ISA_calculator import isa
 from flight_dynamics_tether_weight import cable_dimensions_calculator
 from flight_dynamics_tether_weight import cable_sag_calculator
+from flightpath import reduced_lift_by_roll
+from flightpath import flight_radius
 import scipy.linalg as la
 start = time.time()
 
@@ -155,6 +157,10 @@ corresponding_reel_speed = 0
 corresponding_wind_speed = 0
 corresponding_tether_force = 0
 corresponding_generator_power = 0
+corresponding_tether_mass = 0
+corresponding_generator_power = 0
+corresponding_total_mass = 0
+
 d_tether = 0
 
 tether_guess_lst = []
@@ -163,7 +169,7 @@ tether_diff_lst = []
 count_lst = []
 
 
-oeration_angle_fail_lst = []
+operation_angle_fail_lst = []
 azimuth_angle_fail_lst = []
 for reelspeed in reel_speed_array:
     for altitude in altitude_array:
@@ -189,7 +195,13 @@ for reelspeed in reel_speed_array:
                     ultimate_tensile_strength = 790*10**6 # yield or ultimate stress
                     tether_density = 1300 # kg/m3
                     glidermass = 3800 #kg
+                    roll_angle = 10 * pi/180
                     count = 0
+                    tether_mass_guess_value = 1 #kg -> random number
+                    total_mass = tether_mass_guess_value + glidermass
+                    tether_force_net = 1
+                    
+                   
                     while np.all(tether_diameter_difference) > 0.01:
                         total_tether_force, total_tether_force_horizontal = tether_force_max(magnitude_apparent_wind_speed, air_density, lift_coefficient, drag_coefficient, wing_area, operation_angle)
                         #print("total_tether_force = ", total_tether_force)
@@ -199,8 +211,13 @@ for reelspeed in reel_speed_array:
                         tether_force_net = net_tether_force(magnitude_apparent_wind_speed, air_density, lift_coefficient, drag_coefficient, wing_area, operation_angle, V_a_z, glidermass, g_gravity, F_z, tether_mass_guess_value)
                         #print("net_tether_force = ", tether_force_net)
                         tether_force_net_z = net_tether_force_z(tether_force_net, operation_angle)
-
-
+                        
+                        #reduced_force_by_roll = reduced_lift_by_roll(corresponding_tether_force, roll_angle)[0]
+                        reduced_force_by_roll = reduced_lift_by_roll(tether_force_net, roll_angle, total_mass, wing_area, air_density, lift_coefficient, radius_flight_path)[0]
+                        final_generator_power = reduced_force_by_roll * reelspeed
+                        kite_speed = np.sqrt(apparent_wind_speed_cartesian.item(1)**2 * apparent_wind_speed_cartesian.item(2)**2)
+                        final_flight_radius = flight_radius(roll_angle, reduced_force_by_roll, total_mass, kite_speed)
+                        #apparent_wind_speed_cartesian[2] = apparent_wind_speed_cartesian[2] + added_velocity_z_direction(hi, operation_angle, final_flight_radius, g_gravity)
                         
                         tether_diameter_needed = tether_diameter_new(tether_force_net_z, ultimate_tensile_strength, tether_density)
                         tether_diameter_difference_absolute = abs(tether_diameter_initial_guess - tether_diameter_needed)
@@ -242,9 +259,13 @@ for reelspeed in reel_speed_array:
                         corresponding_apparent_wind_speed = apparent_wind_speed_cartesian
                         corresponding_apparent_wind_speed_spherical = apparent_wind_speed_spherical
                         corresponding_tether_force = tether_force_net
-                        corresponding_generator_power = tether_force_net * reelspeed
-                        
-            
+                        corresponding_tether_mass = tether_mass_guess_value
+                        corresponding_generator_power = final_generator_power
+                        corresponding_total_mass = total_mass + glidermass
+                        corresponding_flight_radius =  final_flight_radius
+                        corresponding_reduced_lift_roll = reduced_force_by_roll
+                    
+                    
         else:
             operation_angle_fail_lst.append(operation_angle)
             azimuth_angle_fail_lst.append(azimuth_angle)
@@ -261,11 +282,12 @@ print("V_a vector = ", corresponding_apparent_wind_speed)
 print("alitutude = ", corresponding_altitude)
 print("V_reel = ", corresponding_reel_speed)
 print("wind speed = ", corresponding_wind_speed)
-print("tether force = ", corresponding_tether_force)
-print("generator power = ", corresponding_generator_power)
 print("Elevation angle = ", corresponding_beta*180/pi)
 print("Tether force = ", corresponding_tether_force)
-print("Generator power = ", corresponding_generator_power)
+print("Total mass", corresponding_total_mass)
+print("Final generator power", corresponding_generator_power)
+print("Reduced lift due to roll", corresponding_reduced_lift_roll)
+print("Flight radius", corresponding_flight_radius)
 
 # print("a = ", a_lst[110])
 # print("b = ", b_lst[110])
