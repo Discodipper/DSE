@@ -7,7 +7,7 @@ Created on Tue Jan 14 11:52:22 2020
 This script describes the main part of defining material and properties of the wing box
 """
 
-
+import math as m
 import matplotlib.pyplot as plt
 import scipy as sp
 import copy
@@ -33,7 +33,7 @@ wing_surface_area = wing_area #m^2
 chord_root = chord_root #m
 chord_tip = chord_tip #m
 E = 70*10**9 #Pa
-drag_wing = 1000 #N
+drag_wing = 1300000/30 #N
 moment_of_inertia_y = 0.0003333333 #dit moet nog flink aangepast en geparametriseerd worden
 moment_of_inertia_x = 0.001
 safety_factor = 3
@@ -41,6 +41,17 @@ yield_stress_plate = 1000000
 density_plates = 975
 #comment: the wing surface area has to be coherent with the span and such, otherwise it messes up
 print(wing_area)
+wing_area = 60
+
+aspect_ratio = 12
+chord_root = m.sqrt(wing_area/aspect_ratio)*(0.5/(0.35+0.15*0.2))
+print(chord_root)
+chord_tip = 0.4*chord_root
+wing_area_outside_fuselage = wing_area-0.2*m.sqrt(wing_area)*m.sqrt(aspect_ratio)*chord_root
+print(wing_area_outside_fuselage)
+wing_area = wing_area_outside_fuselage
+span = (1-0.2)*m.sqrt(wing_area*aspect_ratio)
+print(span)
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -120,8 +131,8 @@ print(mass_wing_box*2)
 print(wing_box_chord_height_list[0])
 #plt.plot(spanwise_locations, local_load_distribution) 
 #plt.plot(spanwise_locations, local_shear_distribution)   
-#plt.plot(spanwise_locations, bending_moment_distribution)
-plt.plot(spanwise_locations, plate_thickness_list)  
+plt.plot(spanwise_locations, bending_moment_distribution)
+#plt.plot(spanwise_locations, plate_thickness_list)  
 #plt.plot(spanwise_locations, wing_box_chord_height_list)  
 #plt.plot(spanwise_locations, bending_stress_list)
 #plt.plot(spanwise_locations, drag_bending_moment_distribution)
