@@ -178,7 +178,6 @@ for reel_factor in reel_factor_array:
         for operation_angle in beta:
             temperature, pressure, air_density, windspeed = isa(altitude)
             reelspeed = reel_speed(reel_factor, windspeed)
-            reel_factor = reeling_factor(reelspeed, windspeed)
 
             polar_angle = polarangle(operation_angle) #rad
             
