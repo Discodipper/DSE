@@ -24,7 +24,7 @@ C_m_alpha_lst2 = []
 C_D_zero = [0.056,0.019,0.011]
 C_L_alpha = [0.09,0.09867,0.10109090909,0.09125,0.1019167,0.10425,0.0919167,0.1033,0.1067] # [1/DEGREES] used for interpolation S20AR6, S20AR12 , S20AR18, S60AR6, S60AR12, S60AR18, S100AR6, S100AR12, S100AR18
 C_L_zero_aoa_lst = [0.652,0.748,0.785,0.662,0.762,0.804,0.666,0.766,0.808]
-wing_area = 100
+wing_area = 60
 for C_L_slope_tail_deg in C_L_slope_tail_deg_lst:
     #for wing_area in range(20,100,5):
     for aspect_ratio in range(6,19,2):
@@ -86,7 +86,13 @@ for C_L_slope_tail_deg in C_L_slope_tail_deg_lst:
         taper_ratio = 0.4
         chord_root = m.sqrt(wing_area/aspect_ratio) * (0.5/(0.35+0.15*x))
         chord_mean_aerodynamic = (2/3)*chord_root * ((1+taper_ratio + \
-                                                      taper_ratio**2)/(1+taper_ratio)) # [m]
+         import math as m
+# #C_D_zero_lst = [0.056,0.012,0.011]
+# aspect_ratio = 18
+# oswald = 1.78*(1-0.045*aspect_ratio**0.68) - 0.64
+# C_D_zero = 0.012
+#     C_D = C_D_zero + (C_L**2)/(m.pi * aspect_ratio * oswald)
+#                                              taper_ratio**2)/(1+taper_ratio)) # [m]
         quarter_chord_line_angle_rad = m.atan(m.tan(sweep_angle_rad) + (chord_root/(2*wing_span)) * (taper_ratio-1))
         
                 
