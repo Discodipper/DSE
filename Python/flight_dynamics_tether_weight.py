@@ -66,7 +66,6 @@ def cable_angle_calculator(K1_sag_constant, w_tether_per_length, L_horizontal_op
 def cable_coordinates_calculator(L_horizontal_operating_distance, H_horizontal_tension_force, w_tether_per_length,K1_sag_constant,K2_sag_constant):
     x_cable_coordinate = [] #[m]
     y_cable_coordinate = [] #[m]
-    
     for x in range(0,int(L_horizontal_operating_distance),1):
         x_cable_coordinate.append(x)
         y = H_horizontal_tension_force/w_tether_per_length*np.cosh(w_tether_per_length/H_horizontal_tension_force*x + K1_sag_constant) + K2_sag_constant
