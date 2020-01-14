@@ -15,7 +15,7 @@ chord_mean_aerodynamic = (2/3)*chord_root * ((1+taper_ratio + \
 taper_ratio**2)/(1+taper_ratio)) # [m]
 mean_aerodynamic_y = (wing_span/6) * ((1+2*taper_ratio)/(1+taper_ratio)) # [m] # taken from middle 
 mean_aerodynamic_x = mean_aerodynamic_y * m.tan(sweep_angle_rad) # [m] position of start MAC taken from leading edge wing 
-quarter_chord_line_angle_rad = m.atan(m.tan(sweep_angle_rad) + (chord_root/(2*wing_span)) * (taper_ratio-1))
+quarter_chord_line_angle_rad = m.atan(m.tan(sweep_angle_rad) + (chord_root/(2*(1-x)*wing_span)) * (taper_ratio-1))
 
 aspect_ratio_limit = 17.7 * (2-taper_ratio) * m.exp(-0.043 * quarter_chord_line_angle_rad) #maximum AR dependent on variables in formula
 

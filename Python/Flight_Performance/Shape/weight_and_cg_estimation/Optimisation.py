@@ -86,14 +86,14 @@ for C_L_slope_tail_deg in C_L_slope_tail_deg_lst:
         taper_ratio = 0.4
         chord_root = m.sqrt(wing_area/aspect_ratio) * (0.5/(0.35+0.15*x))
         chord_mean_aerodynamic = (2/3)*chord_root * ((1+taper_ratio + \
-         import math as m
+                                                      taper_ratio**2)/(1+taper_ratio)) # [m]
 # #C_D_zero_lst = [0.056,0.012,0.011]
 # aspect_ratio = 18
 # oswald = 1.78*(1-0.045*aspect_ratio**0.68) - 0.64
 # C_D_zero = 0.012
 #     C_D = C_D_zero + (C_L**2)/(m.pi * aspect_ratio * oswald)
 #                                              taper_ratio**2)/(1+taper_ratio)) # [m]
-        quarter_chord_line_angle_rad = m.atan(m.tan(sweep_angle_rad) + (chord_root/(2*wing_span)) * (taper_ratio-1))
+        quarter_chord_line_angle_rad = m.atan(m.tan(sweep_angle_rad) + (chord_root/(2*(1-x)*wing_span)) * (taper_ratio-1))
         
                 
 #--------------------------------- TAIL C_L_ALPHA ----------------------------------------  
