@@ -29,7 +29,7 @@ radius_flight_path = 200 #m
 
 drag_coefficient = 0.2
 lift_coefficient = 2.0
-glide_ratio = 19#lift_coefficient/drag_coefficient
+glide_ratio = lift_coefficient/drag_coefficient
 wing_area = 60 #m^2
 
 
