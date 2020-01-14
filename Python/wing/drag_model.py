@@ -10,12 +10,14 @@ import numpy as np
 
 
 
-v_speed = np.linspace(60.,120.,4)
+v_speed = np.arange(100,210,10)
 v_speed_lst = []
 cd0_total_lst = []
 wingdrag_surface_area = np.arange(20, 140, 40)
 wingdrag_surface_area_lst = []
 total_list=[]
+drag_polar_lst =[]
+lift_over_drag_coefficient_lst = []
 
 #for parameter in arange
 for apparent_windspeed in v_speed:
@@ -46,7 +48,7 @@ for apparent_windspeed in v_speed:
         #calculate surface areas
         L1 = 3.0 #m
         L2 = 3.0 #m
-        L3 = 12.649 - L1 - L2 #m
+        L3 = 12.649 - L1 - L2 #m 
         d_fus = 0.5 #m
         s_w_exp = 60.0 #exposed area wing
         s_ht_exp = 13.0 #exposed area horizontal tail
@@ -118,15 +120,29 @@ for apparent_windspeed in v_speed:
         v_speed_lst.append(apparent_windspeed)
         cd0_total_lst.append(cd0_total)
         wingdrag_surface_area_lst.append(surface_ref)
-
+        lift_coefficient = 1.2
+        aspect_ratio = 12
+        oswald_factor = 1.78*(1 - 0.045*aspect_ratio**0.68)-0.64
+        induced_drag = lift_coefficient**2/(np.pi*aspect_ratio*oswald_factor)
+        drag_polar = cd0_total + induced_drag
+        drag_polar_lst.append(drag_polar)
+        lift_over_drag_coefficient = lift_coefficient/drag_polar
+        lift_over_drag_coefficient_lst.append(lift_over_drag_coefficient)
+        
 total_list.append(cd0_total_lst)
 total_list.append(v_speed_lst)
 total_list.append(wingdrag_surface_area_lst)
+total_list.append(drag_polar_lst)
+total_list.append(lift_over_drag_coefficient_lst)
 total_list_array = np.array(total_list)
 print("v_speed_lst =", v_speed_lst)
 print("Surface area =", wingdrag_surface_area_lst)    
 print("cd0_total_lst =", cd0_total_lst)
-    # s_wet_tail_v = 1.05*2*s_vt_exp #vertical tail wetted area
+
+
+
+
+   # s_wet_tail_v = 1.05*2*s_vt_exp #vertical tail wetted area
     # #calculate coefficients
     # flat_plate_skin_friction_coefficient = #estimates component friction drag
     # #For the wing, tail, strut and pylon:
