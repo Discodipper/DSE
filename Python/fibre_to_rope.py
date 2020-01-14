@@ -38,7 +38,7 @@ b_range_of_strengths = np.arange(0, max(x_data_rope), max(x_data_rope)/100)
 ind_i_still_dk_what_this_does = np.arange(len(x_value_range))
 np.put(x_value_range, ind_i_still_dk_what_this_does, b_range_of_strengths)
 
-strength_of_fibre = (3.3 + 3.9)/2 #[GPa]
+strength_of_fibre = 3.6 #[GPa]
 density_of_fibre = 975 #[kg/m^3]
 
 a_strength_array = np.empty(100) #[kN]
