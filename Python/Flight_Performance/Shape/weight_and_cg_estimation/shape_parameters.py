@@ -2,10 +2,10 @@ import math as m
 from numpy import array as a
 g = 9.80665
 sweep_angle_deg = 0 # degrees at LE 
-sweep_angle_rad = (1*m.pi)/180 # sweep angle at LE in radians
+sweep_angle_rad = (sweep_angle_deg*m.pi)/180 # sweep angle at LE in radians
 taper_ratio = 0.4 # to make lift distribution elliptical 
 aspect_ratio = 18 # [-] from adsee slides on aspect ratio 
-wing_area = 100 # m^2
+wing_area = 60 # m^2
 wing_span = m.sqrt(wing_area * aspect_ratio) # [m]
 wing_span_half = wing_span*0.5 #[m]
 chord_root = wing_area/(wing_span*0.7) # [m]   
