@@ -55,7 +55,7 @@ def cable_angle_calculator(K1_sag_constant, w_tether_per_length, L_horizontal_op
     theta_tension_angle_glider = np.arctan(np.sinh(w_tether_per_length*L_horizontal_operating_distance/H_horizontal_tension_force+K1_sag_constant))
     
     #print('glider rope angle = ', theta_tension_angle_glider*180/np.pi, 'degrees')
-    if theta_tension_angle_ground < 0:
+    if np.all(theta_tension_angle_ground) < 0:
         #print('ERROR, tether touches ground, theta =', theta_tension_angle_ground*np.pi/180, 'degrees')
     # else:
     #     #print('Phew, we are OK, theta=', theta_tension_angle_ground*180/np.pi, 'degrees')
@@ -66,7 +66,6 @@ def cable_angle_calculator(K1_sag_constant, w_tether_per_length, L_horizontal_op
 def cable_coordinates_calculator(L_horizontal_operating_distance, H_horizontal_tension_force, w_tether_per_length,K1_sag_constant,K2_sag_constant):
     x_cable_coordinate = [] #[m]
     y_cable_coordinate = [] #[m]
-    
     for x in range(0,int(L_horizontal_operating_distance),1):
         x_cable_coordinate.append(x)
         y = H_horizontal_tension_force/w_tether_per_length*np.cosh(w_tether_per_length/H_horizontal_tension_force*x + K1_sag_constant) + K2_sag_constant

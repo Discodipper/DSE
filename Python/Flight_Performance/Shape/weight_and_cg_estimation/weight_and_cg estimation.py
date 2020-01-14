@@ -11,14 +11,14 @@ import numpy as np
 # lift = 0.5 * rho * V**2 * wing_area * lift_coefficient
 length_fuselage_dylan = 20
 wing_area_dylan = 150 
-wing_area = 60
+wing_area = 100
 g = 9.80665
 ratio_from_dylan = m.sqrt(wing_area/wing_area_dylan)
 length_fuselage = ratio_from_dylan * length_fuselage_dylan
 
 #------------------------------------------- COGs --------------------------------------------------------
 center_of_gravity_engines = 0*length_fuselage  # [m]
-center_of_gravity_tail = 0.95*length_fuselage # [m]
+center_of_gravity_tail = 0.95*length_fuselage # [m] #
 center_of_gravity_fuselage = 0.5*length_fuselage # [m]
 center_of_gravity_wheels_nose = 0.1* length_fuselage # [m]
 center_of_gravity_wheels_main = 0.55*length_fuselage # [m]
@@ -26,6 +26,7 @@ center_of_gravity_wing = 0.42 * length_fuselage # [m]
 
 #------------------------------------------- WEIGHTS ----------------------------------------------------
 W_glider = ratio_from_dylan * 6885.2 *g # [N] 
+m_glider = W_glider/9.80665 # [kg]
 W_tail = 0.08*W_glider# [N]
 W_wing = 0.50*W_glider # [N]
 W_wheels_nose = 0.02*W_glider # [N] # Weight of entire nose wheels 
@@ -34,15 +35,18 @@ W_fuselage = 0.20 * W_glider # [N] Weight of both fuselages combined
 W_engines = 0.16*W_glider # [N] Weight of both engines combined 
 
 # import stuff here
-def Center_of_Gravity(W_tail, W_wheels_main, W_wheels_nose, W_fuselage, W_engines, W_wing, \
-                      center_of_gravity_tail, center_of_gravity_wheels_main, center_of_gravity_wheels_nose, center_of_gravity_fuselage, center_of_gravity_engines, center_of_gravity_wing):
-    W_fuselage_group = W_tail + W_fuselage + W_wheels_nose + W_engines
-    W_wing_group = W_wing  + W_wheels_main 
-    center_of_gravity_fuselage_group = (W_tail*center_of_gravity_tail + W_fuselage*center_of_gravity_fuselage + \
-                                        W_wheels_nose*center_of_gravity_wheels_nose + W_tail*center_of_gravity_tail + W_engines * center_of_gravity_engines) / W_fuselage_group # in [m]
-    center_of_gravity_wing_group = (W_wheels_main * center_of_gravity_wheels_main + W_wing*center_of_gravity_wing) / W_wing_group # in [m]
-    center_of_gravity =  (W_wing_group * center_of_gravity_wing_group + W_fuselage_group * center_of_gravity_fuselage_group ) / W_glider  # in [m] from the nose
-    if center_of_gravity > center_of_gravity_wheels_main:
-        print("Error: main wheel cg in front of total cg")
-    center_of_gravity_ratio = center_of_gravity/length_fuselage # cg as a percentage of length fuselage taken from nose to aft
-    return(center_of_gravity, center_of_gravity_ratio)
+# def Center_of_Gravity(W_tail, W_wheels_main, W_wheels_nose, W_fuselage, W_engines, W_wing, \
+#                       center_of_gravity_tail, center_of_gravity_wheels_main, center_of_gravity_wheels_nose, center_of_gravity_fuselage, center_of_gravity_engines, center_of_gravity_wing):
+W_fuselage_group = W_tail + W_fuselage + W_wheels_nose + W_engines
+W_wing_group = W_wing  + W_wheels_main 
+center_of_gravity_fuselage_group = (W_tail*center_of_gravity_tail + W_fuselage*center_of_gravity_fuselage + \
+                                    W_wheels_nose*center_of_gravity_wheels_nose + W_tail*center_of_gravity_tail + W_engines * center_of_gravity_engines) / W_fuselage_group # in [m]
+center_of_gravity_wing_group = (W_wheels_main * center_of_gravity_wheels_main + W_wing*center_of_gravity_wing) / W_wing_group # in [m]
+center_of_gravity =  (W_wing_group * center_of_gravity_wing_group + W_fuselage_group * center_of_gravity_fuselage_group ) / W_glider  # in [m] from the nose
+if center_of_gravity > center_of_gravity_wheels_main:
+    print("Error: main wheel cg in front of total cg")
+center_of_gravity_ratio = center_of_gravity/length_fuselage # cg as a percentage of length fuselage taken from nose to aft
+# return(center_of_gravity, center_of_gravity_ratio)
+#cog = Center_of_Gravity(W_tail, W_wheels_main, W_wheels_nose, W_fuselage, W_engines, W_wing, \
+#                        center_of_gravity_tail, center_of_gravity_wheels_main, center_of_gravity_wheels_nose, center_of_gravity_fuselage, center_of_gravity_engines, center_of_gravity_wing)
+center_of_gravity_inside_wing = 0.95/2.3729700985712054 #COG of the wing in terms of %MAC taken from LE Root chord. These values are taken from S60 and AR12, ratios are the same for each wing area and ar
