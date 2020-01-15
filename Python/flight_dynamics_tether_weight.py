@@ -44,7 +44,7 @@ def cable_sag_calculator(m_tether_per_length,h_operating_altitude,theta_altitude
     #print('straight cable length', L_star_tether_chord_length, 'm')
     #print('percentage difference = ', (C_length_sag_cable-L_star_tether_chord_length)/L_star_tether_chord_length*100, '%')
     
-    return C_length_sag_cable;    
+    return (C_length_sag_cable, K1_sag_constant, L_horizontal_operating_distance)
 ###        
 
 
