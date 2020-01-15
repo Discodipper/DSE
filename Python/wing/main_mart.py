@@ -146,7 +146,7 @@ plt.plot(spanwise_locations, bending_moment_distribution)
 lift_half_plane_middle_section = lift*(wing_area_total-wing_area_outside_fuselage)/wing_area_total*0.5
 bending_moment_middle_section = -x/2/2*m.sqrt(wing_area*aspect_ratio)*lift_half_plane_middle_section+x/2*m.sqrt(wing_area*aspect_ratio)*fuselage_weight*9.81+bending_moment_distribution[0]+local_shear_distribution[0]*-x/2*m.sqrt(wing_area*aspect_ratio)
 drag_bending_moment_middle_section = bending_moment_middle_section*drag_wing/lift
-print(bending_moment_middle_section)
+#print(bending_moment_middle_section)
 thickness_required_bending_middle_section = 0.001
 running = True
 while running == True:
@@ -161,4 +161,3 @@ print(thickness_required_bending_middle_section)
 mass_middle_section = thickness_required_bending_middle_section*x*m.sqrt(wing_area*aspect_ratio)*wing_box_chord_width*2*density_plates
 print('mass middle section')
 print(mass_middle_section)
-print(wing_box_chord_width)
