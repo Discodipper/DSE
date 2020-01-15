@@ -11,14 +11,14 @@ import numpy as np
 # lift = 0.5 * rho * V**2 * wing_area * lift_coefficient
 length_fuselage_dylan = 20
 wing_area_dylan = 150 
-wing_area = 60
+wing_area = 100
 g = 9.80665
 ratio_from_dylan = m.sqrt(wing_area/wing_area_dylan)
 length_fuselage = ratio_from_dylan * length_fuselage_dylan
 
 #------------------------------------------- COGs --------------------------------------------------------
 center_of_gravity_engines = 0*length_fuselage  # [m]
-center_of_gravity_tail = 0.95*length_fuselage # [m]
+center_of_gravity_tail = 0.95*length_fuselage # [m] #
 center_of_gravity_fuselage = 0.5*length_fuselage # [m]
 center_of_gravity_wheels_nose = 0.1* length_fuselage # [m]
 center_of_gravity_wheels_main = 0.55*length_fuselage # [m]

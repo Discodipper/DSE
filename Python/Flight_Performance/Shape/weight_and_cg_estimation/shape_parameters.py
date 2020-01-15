@@ -1,20 +1,22 @@
 import math as m
 from numpy import array as a
 g = 9.80665
+x = 0.25
 sweep_angle_deg = 0 # degrees at LE 
-sweep_angle_rad = (1*m.pi)/180 # sweep angle at LE in radians
+sweep_angle_rad = (sweep_angle_deg*m.pi)/180 # sweep angle at LE in radians
 taper_ratio = 0.4 # to make lift distribution elliptical 
 aspect_ratio = 18 # [-] from adsee slides on aspect ratio 
-wing_area = 100 # m^2
+wing_area = 60 # m^2
 wing_span = m.sqrt(wing_area * aspect_ratio) # [m]
 wing_span_half = wing_span*0.5 #[m]
-chord_root = wing_area/(wing_span*0.7) # [m]   
+chord_root = m.sqrt(wing_area/aspect_ratio) * (0.5/(0.35+0.15*x))
 chord_tip = taper_ratio * chord_root # [m]
 chord_mean_aerodynamic = (2/3)*chord_root * ((1+taper_ratio + \
 taper_ratio**2)/(1+taper_ratio)) # [m]
 mean_aerodynamic_y = (wing_span/6) * ((1+2*taper_ratio)/(1+taper_ratio)) # [m] # taken from middle 
 mean_aerodynamic_x = mean_aerodynamic_y * m.tan(sweep_angle_rad) # [m] position of start MAC taken from leading edge wing 
-quarter_chord_line_angle_rad = m.atan(m.tan(sweep_angle_rad) + (chord_root/(2*wing_span)) * (taper_ratio-1))
+quarter_chord_line_angle_rad = m.atan(m.tan(sweep_angle_rad) + (chord_root/(2*(1-x)*wing_span)) * (taper_ratio-1))
+
 aspect_ratio_limit = 17.7 * (2-taper_ratio) * m.exp(-0.043 * quarter_chord_line_angle_rad) #maximum AR dependent on variables in formula
 
 import ISA_calculator as isa_calc 
@@ -40,7 +42,6 @@ def CL_alpha(aspect_ratio,beta,eta,half_chord_line_angle_rad):
     lift_coefficient_alpha_rad = (2*m.pi*aspect_ratio) / (2+m.sqrt(4+ ((aspect_ratio*beta/eta)**2) * (1+(m.tan(half_chord_line_angle_rad)**2)/beta**2))) # [1/rad]
     lift_coefficient_alpha_deg = lift_coefficient_alpha_rad *m.pi /180 # lift coefficient for entire wing 
     return (lift_coefficient_alpha_rad,lift_coefficient_alpha_deg)
-max_camber = 6              # [%]
 W_glider_dylan = 6885.2 *g
 W_glider = 42703.869701564894
 dynamic_viscosity = 1.729 * 10**(-5)
@@ -48,7 +49,6 @@ reynolds_number = ((rho * speed_apparent * chord_mean_aerodynamic)/dynamic_visco
 q = 0.5*rho*speed_apparent**2
 oswald = 1.78*(1-0.045*aspect_ratio**0.68) - 0.64
 
-CD0 = 0.01 #Lord Dylan
 
 ac_from_LE = 0.25*chord_mean_aerodynamic+mean_aerodynamic_x #aerodynamic center position taken from leading edge wing at root y-position (XFLR5)
 
