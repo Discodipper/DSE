@@ -37,13 +37,13 @@ def normalised_power(mass_area, flight_radius, air_density, lift_coefficient):
 
 
 def flight_radius(roll_angle, net_lift, total_mass, kite_velocity):
-    flight_radius = total_mass * kite_velocity**2 / net_lift / np.sin(roll_angle)
+    flight_radius = total_mass * kite_velocity**2 / (net_lift * np.sin(roll_angle))
     return(flight_radius)
 
-def reduced_lift_by_roll(net_lift, roll_angle, total_mass, wing_area, air_density, lift_coefficient, radius_flight_path):
-    L_reduced = net_lift * np.cos(roll_angle)
-    L_reduced_2 = net_lift * (1-((minimum_radius_flight_path(total_mass, wing_area, air_density, lift_coefficient)) / radius_flight_path)**2)**0.5
-    return(L_reduced, L_reduced_2)
+def reduced_lift_by_roll(net_lift, roll_angle):#, wing_area, air_density, lift_coefficient, radius_flight_path):
+    L_reduced = net_lift * np.sin(roll_angle)
+    #L_reduced_2 = net_lift * (1-((minimum_radius_flight_path(total_mass, wing_area, air_density, lift_coefficient)) / radius_flight_path)**2)**0.5
+    return(L_reduced)
 
 def minimum_radius_flight_path(total_mass, wing_area, air_density, lift_coefficient):
     r_min = 2 * total_mass / wing_area / air_density / lift_coefficient
