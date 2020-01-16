@@ -53,6 +53,7 @@ wing_area = wing_area_outside_fuselage
 span = (1-x)*m.sqrt(wing_area*aspect_ratio)
 #print(span)
 fuselage_weight = 100
+density_foam = 50
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -81,6 +82,9 @@ wing_box_chord_width_list = [0]
 torque_distribution = [0]
 torsion_force_previous = 0
 torsion_plate_thickness_list = [0]
+shear_stress_core_list = [0]
+wing_box_area_list = [0]
+wing_box_volume = 0
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -113,6 +117,14 @@ for n in range(1, number_of_wing_segments):
         if torsional_stress < yield_stress_plate*safety_factor:
             running = False
         thickness_required_torsion = thickness_required_torsion + 0.0001
+     
+    shear_stress_core = local_shear/(wing_box_chord_height*wing_box_chord_width)
+    shear_stress_core_list.append(shear_stress_core)
+    
+    wing_box_area = wing_box_chord_height*wing_box_chord_width
+    wing_box_area_list.append(wing_box_area)
+    
+    wing_box_volume = wing_box_volume + wing_box_area*(spanwise_locations[n]-spanwise_locations[n-1])
     
     drag_bending_moment_distribution.append(local_drag_bending_moment)
     drag_bending_moment_previous = local_drag_bending_moment
@@ -147,6 +159,8 @@ wing_box_chord_height_list.reverse()
 bending_stress_list.reverse()
 torque_distribution.reverse()
 torsion_plate_thickness_list.reverse()
+shear_stress_core_list.reverse()
+wing_box_area_list.reverse()
 
 mass_wing_box = plate_thickness_list[0]*(wing_box_chord_width_list[0]+wing_box_chord_width_list[-2])/2*spanwise_locations[-1]*density_plates*2
 print('plate thickness') 
@@ -155,6 +169,12 @@ print('mass wing box outside fuselage')
 print( mass_wing_box*2)
 print('circumferential plate thickness for torsion')
 print(torsion_plate_thickness_list[0])
+print('required shear strength of filling material')
+print(shear_stress_core)
+print('wing box volume')
+print(wing_box_volume)
+print('wing box filler weight')
+print(wing_box_volume*density_foam*2)
 #print(wing_box_chord_height_list[0])
 #plt.plot(spanwise_locations, local_load_distribution) 
 #plt.plot(spanwise_locations, local_shear_distribution)   
@@ -163,7 +183,10 @@ print(torsion_plate_thickness_list[0])
 #plt.plot(spanwise_locations, wing_box_chord_height_list)  
 #plt.plot(spanwise_locations, bending_stress_list)
 #plt.plot(spanwise_locations, drag_bending_moment_distribution)
-plt.plot(spanwise_locations, torque_distribution)
+#plt.plot(spanwise_locations, torque_distribution)
+#plt.plot(spanwise_locations, shear_stress_core_list)
+#plt.plot(spanwise_locations, wing_box_area_list)
+
 
 #plate_thickness = thickness_required_bending(bending_moment_y, bending_moment_x, yield_stress_plate, safety_factor, wing_box_chord_height, wing_box_chord_width)
 
@@ -176,8 +199,6 @@ drag_bending_moment_middle_section = bending_moment_middle_section*drag_wing/lif
 thickness_required_bending_middle_section = 0.001
 running = True
 while running == True:
-       #bending_stress = -local_bending_moment*0.5*wing_box_chord_height/2/(thickness_required_bending**(3)/12*wing_box_chord_width+wing_box_chord_width*thickness_required_bending*(0.5*wing_box_chord_height-thickness_required_bending/2)**(2))-local_drag_bending_moment*0.5*wing_box_chord_width/2/(wing_box_chord_width**(3)/12*thickness_required_bending)
-       #bending_stress = -0.5*bending_moment_middle_section*(0.5*wing_box_chord_height_list[0]-thickness_required_bending_middle_section/2)/(1/12*thickness_required_bending_middle_section**3*wing_box_chord_width_list[0]+thickness_required_bending_middle_section*wing_box_chord_width_list[0]*(wing_box_chord_height_list[0]/2-thickness_required_bending_middle_section/2))+0.5*drag_bending_moment_middle_section*0.5*wing_box_chord_width_list[0]/(1/12*wing_box_chord_width_list[0]**3*thickness_required_bending_middle_section)
        bending_stress = -0.5*bending_moment_middle_section*(0.5*wing_box_chord_height-thickness_required_bending_middle_section/2)/(1/12*thickness_required_bending_middle_section**3*wing_box_chord_width+thickness_required_bending_middle_section*wing_box_chord_width*(wing_box_chord_height/2-thickness_required_bending_middle_section/2))-0.5*drag_bending_moment_middle_section*0.5*wing_box_chord_width/(1/12*wing_box_chord_width**3*thickness_required_bending_middle_section)
        thickness_required_bending_middle_section = thickness_required_bending_middle_section + 0.001
        if bending_stress < yield_stress_plate*safety_factor: 
