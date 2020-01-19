@@ -6,7 +6,7 @@ Created on Mon Jan 13 13:59:40 2020
 """
 
 import numpy as np
-
+import matplotlib.pyplot as plt
 
 
 
@@ -19,6 +19,9 @@ wingdrag_surface_area_lst = []
 total_list=[]
 drag_polar_lst =[]
 lift_over_drag_coefficient_lst = []
+lift_coefficient_lst = []
+cd0_wing_lst =[]
+drag_polar_wing_lst =[]
 
 #for parameter in arange
 for surface_ref in wingdrag_surface_area: #wing reference area
@@ -53,8 +56,8 @@ for surface_ref in wingdrag_surface_area: #wing reference area
     s_w_exp = 60.0 #exposed area wing
     s_ht_exp = 13.0 #exposed area horizontal tail
     s_vt_exp = 3.0 #exposed area vertical tail
-    laminar_flow_percentage_fus = 0.25 #laminar boundary layer of this amount for fuselage
-    laminar_flow_percentage_wing = 0.5 #laminar boundary layer of this amount for wing and tail
+    laminar_flow_percentage_fus = 0.35 #laminar boundary layer of this amount for fuselage
+    laminar_flow_percentage_wing = 0.70 #laminar boundary layer of this amount for wing and tail
     nu = 1.27E-5 #at 0 degrees celcius, about 2km altitude
     rho = 1.007 #at 2km
     speed_of_sound = 331.30 #at 0 degrees celcius, about 2km altitude
@@ -80,7 +83,7 @@ for surface_ref in wingdrag_surface_area: #wing reference area
     turbulent_friction_coefficient_part = 0.455/((np.log10(subsonic_reynolds))**2.58 * (1+0.144*mach_number**2)**0.65)
     
     flat_plate_skin_friction_coefficient_wing = laminar_flow_percentage_wing * laminar_friction_coefficient_part + (1-laminar_flow_percentage_wing)*turbulent_friction_coefficient_part #estimates component friction drag
-    component_form_factor_wing = (1+0.6/(x_over_c_maximum_thickness)*t_over_c_average+100*t_over_c_average**4)*(1.34*mach_number**0.18*(np.cos(np.rad2deg(sweep_at_maximum_thickness)))**0.28) #estimates pressure drag due to viscous separation
+    component_form_factor_wing = (1+0.6/(x_over_c_maximum_thickness)*t_over_c_average+100*t_over_c_average**4)*(1.34*mach_number**0.18*(np.cos(np.deg2rad(sweep_at_maximum_thickness)))**0.28) #estimates pressure drag due to viscous separation
     interference_factor_wing = 1 #estimates effect of each components on drag of other components
     s_wet_wing = 1.07*2*s_w_exp #wing wetted area
     cd0_wing = 1/surface_ref*(flat_plate_skin_friction_coefficient_wing*component_form_factor_wing*interference_factor_wing*s_wet_wing)
@@ -122,15 +125,20 @@ for surface_ref in wingdrag_surface_area: #wing reference area
     v_speed_lst.append(apparent_windspeed)
     cd0_total_lst.append(cd0_total)
     wingdrag_surface_area_lst.append(surface_ref)
-    lift_coefficient = 1.2
-    aspect_ratio = 12
-    oswald_factor = 1.78*(1 - 0.045*aspect_ratio**0.68)-0.64
-    induced_drag = lift_coefficient**2/(np.pi*aspect_ratio*oswald_factor)
-    drag_polar = cd0_total + induced_drag
-    drag_polar_lst.append(drag_polar)
-    lift_over_drag_coefficient = lift_coefficient/drag_polar
-    lift_over_drag_coefficient_lst.append(lift_over_drag_coefficient)
+    lift_coefficients = np.arange(0, 2.3, 0.1)
+    for lift_coefficient in lift_coefficients:
+        lift_coefficient_lst.append(lift_coefficient)
+        aspect_ratio = 12
+        oswald_factor = 1.78*(1 - 0.045*aspect_ratio**0.68)-0.64
+        induced_drag = lift_coefficient**2/(np.pi*aspect_ratio*oswald_factor)
+        drag_polar = cd0_total + induced_drag
+        drag_polar_lst.append(drag_polar)
+        lift_over_drag_coefficient = lift_coefficient/drag_polar
+        lift_over_drag_coefficient_lst.append(lift_over_drag_coefficient)
+        drag_polar_wing = cd0_wing + induced_drag
+        drag_polar_wing_lst.append(drag_polar_wing)
         
+    
 total_list.append(cd0_total_lst)
 total_list.append(v_speed_lst)
 total_list.append(wingdrag_surface_area_lst)
@@ -140,10 +148,24 @@ total_list_array = np.array(total_list)
 print("v_speed_lst =", v_speed_lst)
 print("Surface area =", wingdrag_surface_area_lst)    
 print("cd0_total_lst =", cd0_total_lst)
+print("drag_polar_lst ="), drag_polar_lst
 
+dragpolarplot = plt.figure(1)
+drag_polar_20 = plt.plot(drag_polar_lst[:23],lift_coefficient_lst[:23], label = "$ S = 20 m^2$", linestyle = '--')
+drag_polar_60 = plt.plot(drag_polar_lst[23:46],lift_coefficient_lst[23:46], label = "$S = 60 m^2$")
+drag_polar_100 = plt.plot(drag_polar_lst[46:],lift_coefficient_lst[46:], label = "$S = 100 m^2$", linestyle = '--')
 
+plt.legend()
+plt.grid()
 
+dragpolarwingplot = plt.figure(2)
+drag_polar_wing_20 = plt.plot(drag_polar_wing_lst[:23],lift_coefficient_lst[:23], label = "$ S = 20 m^2$", linestyle = '--')
+drag_polar_wing_60 = plt.plot(drag_polar_wing_lst[23:46],lift_coefficient_lst[23:46], label = "$S = 60 m^2$")
+drag_polar_wing_100 = plt.plot(drag_polar_wing_lst[46:],lift_coefficient_lst[46:], label = "$S = 100 m^2$", linestyle = '--')
 
+plt.legend()
+plt.grid()
+plt.show()
    # s_wet_tail_v = 1.05*2*s_vt_exp #vertical tail wetted area
     # #calculate coefficients
     # flat_plate_skin_friction_coefficient = #estimates component friction drag
