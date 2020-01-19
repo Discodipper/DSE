@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 
 
-v_speed = 87.74
+v_speed = 88.4
 apparent_windspeed = v_speed
 v_speed_lst = []
 cd0_total_lst = []
@@ -22,11 +22,12 @@ lift_over_drag_coefficient_lst = []
 lift_coefficient_lst = []
 cd0_wing_lst =[]
 drag_polar_wing_lst =[]
+drag_polar_class0_lst = []
+drag_polar_class1_lst = []
 
 #for parameter in arange
 for surface_ref in wingdrag_surface_area: #wing reference area
-    surface_wet = 18.3 + 128 + 12.6 + 6 #aircraft wetted area
-    surface_ratio = 4
+    surface_ratio = 3.8
     
     equivalent_skin_friction_coefficient = 0.0026
     zeroliftdrag = equivalent_skin_friction_coefficient*surface_ratio
@@ -38,10 +39,10 @@ for surface_ref in wingdrag_surface_area: #wing reference area
     cdc_tail = 0.008
     cd_misc = 0.15
     ac_wing = 60#wing reference area
-    ac_fus = 2*np.pi*1**2#maximum frontal area of fuselage
+    ac_fus = 2*np.pi*0.5**2#maximum frontal area of fuselage
     ac_nac = 0#maximum frontal area of nacelles
-    ac_tail_h = 6#reference area H tail
-    ac_tail_v = 1#reference area V tail
+    ac_tail_h = 14.8 #reference area H tail
+    ac_tail_v = 3.18 #reference area V tail
     zeroliftdrag_clean = (1 / surface_ref * (cdc_wing * ac_wing + cdc_fus * ac_fus + cdc_nac * ac_nac + cdc_tail * (ac_tail_h + ac_tail_v))) * (1 + cd_misc)
     
     
@@ -53,11 +54,11 @@ for surface_ref in wingdrag_surface_area: #wing reference area
     L2 = 3.0 #m
     L3 = 12.649 - L1 - L2 #m 
     d_fus = 0.5 #m
-    s_w_exp = 60.0 #exposed area wing
-    s_ht_exp = 13.0 #exposed area horizontal tail
-    s_vt_exp = 3.0 #exposed area vertical tail
-    laminar_flow_percentage_fus = 0.35 #laminar boundary layer of this amount for fuselage
-    laminar_flow_percentage_wing = 0.70 #laminar boundary layer of this amount for wing and tail
+    s_w_exp = surface_ref #exposed area wing
+    s_ht_exp = 14.8 #exposed area horizontal tail
+    s_vt_exp = 0.7 #exposed area vertical tail
+    laminar_flow_percentage_fus = 0.25 #laminar boundary layer of this amount for fuselage
+    laminar_flow_percentage_wing = 0.50 #laminar boundary layer of this amount for wing and tail
     nu = 1.27E-5 #at 0 degrees celcius, about 2km altitude
     rho = 1.007 #at 2km
     speed_of_sound = 331.30 #at 0 degrees celcius, about 2km altitude
@@ -71,7 +72,7 @@ for surface_ref in wingdrag_surface_area: #wing reference area
     
     x_over_c_maximum_thickness_tail_h = 0.2903 #NACA 0012
     t_over_c_average_tail_h = 0.1 #NACA 0012
-    length_tail_h = 2 #m
+    length_tail_h = 1.7 #m
     sweep_at_maximum_thickness_tail_h = 0 #degrees
     
     length_fus = L1+L2+L3
@@ -101,6 +102,17 @@ for surface_ref in wingdrag_surface_area: #wing reference area
     cd0_tail_h = 1/surface_ref*(flat_plate_skin_friction_coefficient_tail_h*component_form_factor_tail_h*interference_factor_tail_h*s_wet_tail_h)
     
     
+    #vertical tail
+    subsonic_reynolds = np.minimum(rho*apparent_windspeed*length_tail_h/nu, 38.21*(length_tail_h/smoothness_of_material)**1.053)
+    laminar_friction_coefficient_part = 1.328/np.sqrt(subsonic_reynolds)
+    turbulent_friction_coefficient_part = 0.455/((np.log10(subsonic_reynolds))**2.58 * (1+0.144*mach_number**2)**0.65)
+    
+    flat_plate_skin_friction_coefficient_tail_v = laminar_flow_percentage_wing * laminar_friction_coefficient_part + (1-laminar_flow_percentage_wing)*turbulent_friction_coefficient_part #estimates component friction drag
+    component_form_factor_tail_v = (1+0.6/(x_over_c_maximum_thickness_tail_h)*t_over_c_average_tail_h+100*t_over_c_average_tail_h**4)*(1.34*mach_number**0.18*(np.cos(np.rad2deg(sweep_at_maximum_thickness_tail_h)))**0.28) #estimates pressure drag due to viscous separation
+    interference_factor_tail_v = 1.08
+    s_wet_tail_v = 1.05*2*s_vt_exp #horizontal tail wetted area
+    cd0_tail_v = 1/surface_ref*(flat_plate_skin_friction_coefficient_tail_v*component_form_factor_tail_v*interference_factor_tail_v*s_wet_tail_v)
+    
     #fuselage
     subsonic_reynolds = np.minimum(rho*apparent_windspeed*length_fus/nu, 38.21*(length_fus/smoothness_of_material)**1.053)
     laminar_friction_coefficient_part = 1.328/np.sqrt(subsonic_reynolds)
@@ -121,7 +133,7 @@ for surface_ref in wingdrag_surface_area: #wing reference area
     
     
     #final formula
-    cd0_total = (cd0_wing + cd0_tail_h + 2* cd0_fus + fuselage_base_drag_coefficient)*(1+excrescence_and_leakage_drag)
+    cd0_total = (cd0_wing + cd0_tail_h + cd0_tail_v + 2* cd0_fus + fuselage_base_drag_coefficient)*(1+excrescence_and_leakage_drag)
     v_speed_lst.append(apparent_windspeed)
     cd0_total_lst.append(cd0_total)
     wingdrag_surface_area_lst.append(surface_ref)
@@ -137,7 +149,10 @@ for surface_ref in wingdrag_surface_area: #wing reference area
         lift_over_drag_coefficient_lst.append(lift_over_drag_coefficient)
         drag_polar_wing = cd0_wing + induced_drag
         drag_polar_wing_lst.append(drag_polar_wing)
-        
+        drag_polar_class0 = zeroliftdrag + induced_drag
+        drag_polar_class0_lst.append(drag_polar_class0)
+        drag_polar_class1 = zeroliftdrag_clean + induced_drag
+        drag_polar_class1_lst.append(drag_polar_class1)
     
 total_list.append(cd0_total_lst)
 total_list.append(v_speed_lst)
@@ -150,18 +165,34 @@ print("Surface area =", wingdrag_surface_area_lst)
 print("cd0_total_lst =", cd0_total_lst)
 print("drag_polar_lst ="), drag_polar_lst
 
-dragpolarplot = plt.figure(1)
-drag_polar_20 = plt.plot(drag_polar_lst[:23],lift_coefficient_lst[:23], label = "$ S = 20 m^2$", linestyle = '--')
-drag_polar_60 = plt.plot(drag_polar_lst[23:46],lift_coefficient_lst[23:46], label = "$S = 60 m^2$")
-drag_polar_100 = plt.plot(drag_polar_lst[46:],lift_coefficient_lst[46:], label = "$S = 100 m^2$", linestyle = '--')
 
-plt.legend()
-plt.grid()
+from cycler import cycler
+color_c = cycler('color', ['b','r','k','g'])
+style_c = cycler('linestyle', ['-','--',':', '-.'])
+markr_c = cycler('marker', ['', '.', 'o'])
+c_cms = color_c * markr_c * style_c
+c_csm = color_c * style_c * markr_c
 
-dragpolarwingplot = plt.figure(2)
-drag_polar_wing_20 = plt.plot(drag_polar_wing_lst[:23],lift_coefficient_lst[:23], label = "$ S = 20 m^2$", linestyle = '--')
-drag_polar_wing_60 = plt.plot(drag_polar_wing_lst[23:46],lift_coefficient_lst[23:46], label = "$S = 60 m^2$")
-drag_polar_wing_100 = plt.plot(drag_polar_wing_lst[46:],lift_coefficient_lst[46:], label = "$S = 100 m^2$", linestyle = '--')
+
+
+plt.rc('axes',prop_cycle=c_csm)
+drag_polar_class0_60 = plt.plot(drag_polar_class0_lst[23:46],lift_coefficient_lst[23:46], label = "Class 0: wing + fuselage + tail", color='k')
+drag_polar_class1_60 = plt.plot(drag_polar_class1_lst[23:46],lift_coefficient_lst[23:46], label = "Class I: wing + fuselage + tail", color= 'r')
+# drag_polar_20 = plt.plot(drag_polar_lst[:23],lift_coefficient_lst[:23], label = "$ S = 20 m^2$", linestyle = '--')
+drag_polar_60 = plt.plot(drag_polar_lst[23:46],lift_coefficient_lst[23:46], label = "Class II: wing + fuselage + tail", color ='g')
+# drag_polar_100 = plt.plot(drag_polar_lst[46:],lift_coefficient_lst[46:], label = "$S = 100 m^2$", linestyle = '--')
+# drag_polar_wing_20 = plt.plot(drag_polar_wing_lst[:23],lift_coefficient_lst[:23], label = "$ S = 20 m^2$", linestyle = '--')
+drag_polar_wing_60 = plt.plot(drag_polar_wing_lst[23:46],lift_coefficient_lst[23:46], label = "Class II: wing", color = 'b')
+# drag_polar_wing_100 = plt.plot(drag_polar_wing_lst[46:],lift_coefficient_lst[46:], label = "$S = 100 m^2$", linestyle = '--')
+
+
+
+
+
+plt.ylabel("$C_{L}$")
+plt.xlabel("$C_D$")
+plt.title("Drag polar aircraft and wing (analytical model)")
+
 
 plt.legend()
 plt.grid()
