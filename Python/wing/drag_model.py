@@ -29,7 +29,7 @@ drag_polar_class1_lst = []
 for surface_ref in wingdrag_surface_area: #wing reference area
     surface_ratio = 3.8
     
-    equivalent_skin_friction_coefficient = 0.0026
+    equivalent_skin_friction_coefficient = 0.0045
     zeroliftdrag = equivalent_skin_friction_coefficient*surface_ratio
     
     
@@ -58,7 +58,7 @@ for surface_ref in wingdrag_surface_area: #wing reference area
     s_ht_exp = 14.8 #exposed area horizontal tail
     s_vt_exp = 0.7 #exposed area vertical tail
     laminar_flow_percentage_fus = 0.25 #laminar boundary layer of this amount for fuselage
-    laminar_flow_percentage_wing = 0.50 #laminar boundary layer of this amount for wing and tail
+    laminar_flow_percentage_wing = 0.5 #laminar boundary layer of this amount for wing and tail
     nu = 1.27E-5 #at 0 degrees celcius, about 2km altitude
     rho = 1.007 #at 2km
     speed_of_sound = 331.30 #at 0 degrees celcius, about 2km altitude
