@@ -58,7 +58,7 @@ g = 9.80665
 
 # engine selection
 def engine(required_thrust,V_take_off):
-    propeller_efficiency = .64
+    propeller_efficiency = .85
     C_T = 8/9#.065 #.1064,.1004,.0924,.0846,.0696
     n = 6000 # RPM from literature test data
     diameter_single_propeller = sqrt(sqrt(.5*required_thrust/isa(0)[2]/(n*2*pi)**2/C_T))
