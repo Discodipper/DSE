@@ -13,9 +13,9 @@ import time
 start = time.time()
 
 #emptyweight = np.arange(250, 500, 10)#300 #kg
-altitude = np.arange(2000, 2600, 100) #10000 #m
-surfacearea = np.arange(15, 41, 1) #m^2
-reelspeed = np.arange(10, 21, 1)
+altitude = np.arange(3000, 3100, 100) #10000 #m
+surfacearea = np.arange(60, 61, 1) #m^2
+reelspeed = np.arange(3, 4, 1)
 WingLoading = np.arange(400, 610, 10)
 OEW_lst = []
 alt_lst = []
@@ -85,7 +85,7 @@ for alt in altitude:
                     d_u = L_cable/(sin(angle_mean - angle_diff) * (1/tan(angle_mean - angle_diff)) * (1/(tan(2*angle_diff))))
                     P_density_WRTground = generator_power/(d_u**2)
                     
-                    if CL <= 2.2 and d_needed <= d_cable and generator_power >= 300:
+                    if d_needed <= d_cable:
                         OEW_lst.append(OEW)
                         alt_lst.append(alt)
                         CL_lst.append(CL)
@@ -110,17 +110,17 @@ for alt in altitude:
                         spacing_lst.append(d_u)
                         P_density_WRTground_lst.append(P_density_WRTground)
                         
-print("OEW = ", OEW_lst[263], "kg")
-print("Operational altitude = ", alt_lst[263], "m")
-print("CL needed = ", CL_lst[263])
-print("Reel speed = ", V_reel_lst[263], "m/s")
-print("Wing surface area = ", S_lst[263], "m^2")
-print("Power of single unit = ", P_lst[263], "kW")
-print("Number of gliders = ", gliders[263])
-print("Thrust needed for takeoff = ", thrust_lst[263], "N")
-print("Spacing between gliders = ", spacing_lst[263], "m")
-print("Power density with respect to ground = ", P_density_WRTground_lst[263]*1000, "W/m^2")  
-print("Cable mass", cable_weight_lst[263], "kg")                  
+# print("OEW = ", OEW_lst[263], "kg")
+# print("Operational altitude = ", alt_lst[263], "m")
+# print("CL needed = ", CL_lst[263])
+# print("Reel speed = ", V_reel_lst[263], "m/s")
+# print("Wing surface area = ", S_lst[263], "m^2")
+# print("Power of single unit = ", P_lst[263], "kW")
+# print("Number of gliders = ", gliders[263])
+# print("Thrust needed for takeoff = ", thrust_lst[263], "N")
+# print("Spacing between gliders = ", spacing_lst[263], "m")
+# print("Power density with respect to ground = ", P_density_WRTground_lst[263]*1000, "W/m^2")  
+# print("Cable mass", cable_weight_lst[263], "kg")                  
                     
 #number 263
 end = time.time()
