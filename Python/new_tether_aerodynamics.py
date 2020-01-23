@@ -13,10 +13,11 @@ C_D_tether = 1
 angle_ground_glider = 20 # degree
 Y_tether_angle = 60 # degree
 distance_gliders = 2*467 # m
-V_glider = 87.7 # m/s
+V_glider = 87 # m/s
 surface_area_glider = 60 # m^2
 altitude_glider = 3000 # m
-
+tether_diameter = .015 # m
+C_length_sag_cable = 8774 # m 
 def Y_single_tether_drag(altitude_glider,Y_tether_diameter,V_glider,surface_area_glider):
     mesh_length = Y_tether_diameter
     Y_single_tether_length = distance_gliders/2/sin(Y_tether_angle/2/180*pi)

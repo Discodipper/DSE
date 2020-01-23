@@ -11,7 +11,7 @@ import numpy as np
 # lift = 0.5 * rho * V**2 * wing_area * lift_coefficient
 length_fuselage_dylan = 20
 wing_area_dylan = 150 
-wing_area = 100
+wing_area = 60
 g = 9.80665
 ratio_from_dylan = m.sqrt(wing_area/wing_area_dylan)
 length_fuselage = ratio_from_dylan * length_fuselage_dylan
